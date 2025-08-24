@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Santi · Web3 Security — Solana & Ethereum</title>
+  <meta name="description" content="Auditoría, OSINT y análisis de riesgo en Web3 (Solana & Ethereum)." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { --bg: #0b0f14; --card: #0f1620; --muted: #a3adc2; --accent: #22d3ee; --ok:#22c55e; --warn:#fde047; --bad:#ef4444; }
+    html,body { background: var(--bg); color: #e5ecf4; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    .glass { background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+    .chip { border: 1px dashed rgba(255,255,255,.15); }
+    .grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .accent { color: var(--accent); }
+    .card { background: var(--card); border: 1px solid rgba(255,255,255,0.08); transition: all 0.3s ease; }
+    .card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-2px); }
+    .kbd { border: 1px solid rgba(255,255,255,.2); border-bottom-width: 3px; }
+    .pulse { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.7); animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.4);} 70% { box-shadow: 0 0 0 20px rgba(34, 211, 238, 0);} 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0);} }
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <header class="sticky top-0 z-50 backdrop-blur bg-black/30 border-b border-white/10">
+    <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
+      <a href="#top" class="flex items-center gap-3 group">
+        <div class="h-8 w-8 rounded-xl grid place-items-center text-black font-extrabold bg-cyan-300 group-hover:bg-cyan-200 transition">CG</div>
+        <span class="font-semibold tracking-tight">ChainGuard · Santi</span>
+      </a>
+      <nav class="hidden md:flex gap-6 text-sm text-slate-300">
+        <!-- Tratar Luego -->
+         <!--
+        <a class="hover:text-white" href="#analyzer">Analizador</a> 
+         -->
+        <a class="hover:text-white" href="#writeups">Writeups</a>
+        <a class="hover:text-white" href="#perfil">Perfil</a>
+        <a class="hover:text-white" href="#metodos">Métodos</a>
+        <a class="hover:text-white" href="#stack">Stack</a>
+        <a class="hover:text-white" href="#servicios">Servicios</a>
+        <a class="hover:text-white" href="#contacto">Contacto</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <button id="themeBtn" class="px-3 py-1.5 text-sm rounded-xl border border-white/10 hover:border-white/20">Tema</button>
+        <a href="#contacto" class="px-3 py-1.5 text-sm rounded-xl bg-cyan-400/20 border border-cyan-300/30 hover:bg-cyan-300/30">Hablemos</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section id="top" class="relative">
+    <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-500/10 via-transparent to-transparent"></div>
+    <div class="mx-auto max-w-6xl px-4 pt-14 pb-12 md:pt-20 md:pb-16">
+      <div class="grid md:grid-cols-2 items-center gap-8">
+        <div>
+          <h1 class="text-3xl md:text-5xl font-extrabold leading-tight">
+            Seguridad <span class="accent">Web3</span> para <span class="accent">Solana</span> & <span class="accent">Ethereum</span>
+          </h1>
+          <p class="mt-4 text-slate-300">Auditoría, OSINT y análisis de riesgo. Pentesting aplicado a dApps, contratos y ecosistemas DeFi. Datos duros, cero humo.</p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <span class="chip px-3 py-1 rounded-lg text-sm">Solana · Token Program · Anchor</span>
+            <span class="chip px-3 py-1 rounded-lg text-sm">Ethereum · EVM · Foundry</span>
+            <span class="chip px-3 py-1 rounded-lg text-sm">OSINT · Anti‑Scam · Risk Score</span>
+          </div>
+          <div class="mt-8 flex gap-3">
+            <!-- Tratar Luego -->
+             <!--
+            <a href="#analyzer" class="pulse px-4 py-2 rounded-xl bg-cyan-400/20 border border-cyan-300/40 hover:bg-cyan-300/30">Probar Analizador</a>
+            -->
+            <a href="#writeups" class="px-4 py-2 rounded-xl border border-white/10 hover:border-white/20">Leer writeups</a>
+          </div>
+        </div>
+        <!-- Status placeholder (comentado) -->
+      </div>
+    </div>
+  </section>
+
+  <!-- WRITEUPS -->
+  <section id="writeups" class="mx-auto max-w-6xl px-4 pb-12">
+    <h2 class="text-2xl md:text-3xl font-bold">Writeups & Auditorías</h2>
+    <p class="text-slate-400 mt-1">Casos reales y notas técnicas. Sin spoilers, con PoC cuando aplica.</p>
+
+    <!--Trabajar Luego -->
+
+    <!-- 
+    <div class="grid-auto mt-5">
+      <a href="/solana-rugpull-analysis.html" class="card rounded-2xl p-5 block hover:shadow-lg">
+        <div class="text-xs text-slate-400">Solana · Rugpull · Token Program</div>
+        <h3 class="mt-2 text-lg font-semibold">Memecoin con dump coordinado — señales tempranas y on-chain</h3>
+        <p class="mt-2 text-slate-300">Heurísticas de pools, distribución de holders, timing de listados y wallets vinculadas. Cómo olía a <i>pump & dump</i> antes del crash.</p>
+        <div class="mt-3 flex gap-2 text-xs">
+          <span class="chip px-2 py-1 rounded">On-chain</span>
+          <span class="chip px-2 py-1 rounded">OSINT</span>
+          <span class="chip px-2 py-1 rounded">Alerting</span>
+        </div>
+        <div class="mt-3 text-cyan-400 text-sm">Leer más →</div>
+      </a>
+      
+      <a href="writeups/ethereum-typosquatting.html" class="card rounded-2xl p-5 block hover:shadow-lg">
+        <div class="text-xs text-slate-400">Ethereum · AppSec · Phishing</div>
+        <h3 class="mt-2 text-lg font-semibold">Typosquatting de wallets — detección y takedown coordinado</h3>
+        <p class="mt-2 text-slate-300">Pipeline para detectar dominios maliciosos y priorizar derribos: WHOIS + DNS + hosting + evidencia.</p>
+        <div class="mt-3 flex gap-2 text-xs">
+          <span class="chip px-2 py-1 rounded">WHOIS</span>
+          <span class="chip px-2 py-1 rounded">Shodan</span>
+          <span class="chip px-2 py-1 rounded">Playbooks</span>
+        </div>
+        <div class="mt-3 text-cyan-400 text-sm">Leer más →</div>
+      </a>
+      
+      <a href="writeups/evm-security-checklist.html" class="card rounded-2xl p-5 block hover:shadow-lg">
+        <div class="text-xs text-slate-400">EVM · Foundry · Seguridad</div>
+        <h3 class="mt-2 text-lg font-semibold">Reentrancy & approvals: checklist mínimo antes de lanzar</h3>
+        <p class="mt-2 text-slate-300">Pruebas unitarias con Foundry, invariants, límites y análisis de permisos. Lo que sí o sí reviso.</p>
+        <div class="mt-3 flex gap-2 text-xs">
+          <span class="chip px-2 py-1 rounded">Foundry</span>
+          <span class="chip px-2 py-1 rounded">Invariants</span>
+          <span class="chip px-2 py-1 rounded">Hardening</span>
+        </div>
+        <div class="mt-3 text-cyan-400 text-sm">Leer más →</div>
+      </a>
+    </div>
+
+    -->
+  </section>
+
+  
+<!-- PERFIL (layout vertical con imagen) -->
+<section id="perfil" class="mx-auto max-w-6xl px-4 pb-12">
+  <h2 class="text-2xl md:text-3xl font-bold">Perfil</h2>
+  <p class="text-slate-400 mt-1">Analista de datos & ciberseguridad para Web3. Audito Solana & EVM con foco en señales tempranas, automatización y entregables accionables.</p>
+
+  <div class="space-y-10 md:space-y-14 mt-6">
+
+    <!-- 1) Quién soy — texto izq / imagen dcha -->
+    <div class="grid md:grid-cols-2 items-center gap-6">
+      <div class="card rounded-2xl p-6">
+        <h2 class="font-semibold">Quién soy</h2>
+        <p class="text-sm text-slate-300 mt-2">
+          Mi nombre es Santiago. Mezclo <b>análisis de datos</b>, <b>OSINT</b> y <b>AppSec</b> para detectar riesgo real en ecosistemas Web3 (Solana & EVM).
+          Cero humo: evidencias, PoC y un plan claro de mitigación.
+        </p>
+        <p class="text-xs text-slate-500 mt-2">Off-topic: volley, montaña y naturaleza → cabeza fría en incidentes.</p>
+      </div>
+
+      <!-- Trabajar Luego-->
+
+      <!-- 
+      <figure class="card rounded-2xl overflow-hidden h-[220px] md:h-[280px] grid place-items-center">
+        <img src="assets/profile/quien-soy.jpg" alt="Santi — retrato/pro mood"
+             class="w-full h-full object-cover"
+             onerror="this.remove(); this.parentElement.querySelector('[data-ph]').classList.remove('hidden');">
+        <div data-ph class="hidden text-slate-400 text-sm">Sube <code>assets/profile/quien-soy.jpg</code></div>
+      </figure>
+      -->
+    </div>
+
+    <!-- 2) Herramientas — imagen izq / texto dcha -->
+
+    <!-- Trabajar luego-->
+    <!--
+    <div class="grid md:grid-cols-2 items-center gap-6">
+      <figure class="card rounded-2xl overflow-hidden h-[220px] md:h-[280px] grid place-items-center">
+        <img src="assets/profile/herramientas.jpg" alt="Stack de herramientas"
+             class="w-full h-full object-cover"
+             onerror="this.remove(); this.parentElement.querySelector('[data-ph]').classList.remove('hidden');">
+        <div data-ph class="hidden text-slate-400 text-sm">Sube <code>assets/profile/herramientas.jpg</code></div>
+      </figure>
+
+      
+    -->
+
+     <nav>
+      <ul class="flex gap-4">
+        <li><a href="#Herramientas" class="text-slate-300 hover:text-slate-100">Herramientas</a></li>
+        <li><a href="#Experiencia" class="text-slate-300 hover:text-slate-100">Experiencia</a></li>
+        <li><a href="#automatizaciones" class="text-slate-300 hover:text-slate-100">Automatizaciones</a></li>
+        <li><a href="#certificaciones" class="text-slate-300 hover:text-slate-100">Certificaciones</a></li>
+        <li><a href="#idiomas" class="text-slate-300 hover:text-slate-100">Idiomas</a></li>
+      </ul>
+    </nav>
+
+
+      <div class="card rounded-2xl p-6 " id="Herramientas">
+        <h3 class="font-semibold">Herramientas</h3>
+        <p class="text-sm text-slate-300 mt-2">Lo que toco a diario para auditar y automatizar.</p>
+        <div class="mt-3 flex flex-wrap gap-2 text-xs">
+          <span class="chip px-2 py-1 rounded">Foundry (forge/cast)</span>
+          <span class="chip px-2 py-1 rounded">Slither</span>
+          <span class="chip px-2 py-1 rounded">solana-cli</span>
+          <span class="chip px-2 py-1 rounded">spl-token</span>
+          <span class="chip px-2 py-1 rounded">Anchor CLI</span>
+          <span class="chip px-2 py-1 rounded">Burp Suite</span>
+          <span class="chip px-2 py-1 rounded">Nmap · masscan</span>
+          <span class="chip px-2 py-1 rounded">amass · subfinder</span>
+          <span class="chip px-2 py-1 rounded">theHarvester</span>
+          <span class="chip px-2 py-1 rounded">Python </span>
+          <span class="chip px-2 py-1 rounded">FastAPI · Pandas</span>
+          <span class="chip px-2 py-1 rounded">Docker</span>
+          <span class="chip px-2 py-1 rounded">GitHub Actions</span>
+          <span class="chip px-2 py-1 rounded">n8n · Airflow</span>
+          <span class="chip px-2 py-1 rounded">PostgreSQL · Redis</span>
+          <span class="chip px-2 py-1 rounded">Grafana/Prometheus</span>
+        </div>
+      </div>
+    </div>
+
+   <br>
+
+    <!-- 3) Experiencia — texto izq / imagen dcha -->
+    <div class="grid md:grid-cols-2 items-center gap-6" id="experiencia">
+      <div class="card rounded-2xl p-6">
+        <h3 class="font-semibold">Experiencia destacada</h3>
+        <ul class="list-disc pl-5 mt-2 text-slate-300 text-sm">
+          <li>Data Analyst @ General Mills (remote) — automatizaciones con Python + dashboards (Tableau/Power BI) para fraude/seguridad.</li>
+          <li>Operaciones @ Wild About Lapland (FI) — admin Linux on-prem + mejora operativa con datos.</li>
+          <li>Proyectos: port-scanner en Python, auditorías Web3 (EVM/Solana), pipelines de risk scoring.</li>
+        </ul>
+      </div>
+
+      <!-- Trabajar Luego-->
+      <!--
+      <figure class="card rounded-2xl overflow-hidden h-[220px] md:h-[280px] grid place-items-center">
+        <img src="assets/profile/experiencia.jpg" alt="Timeline/experiencia"
+             class="w-full h-full object-cover"
+             onerror="this.remove(); this.parentElement.querySelector('[data-ph]').classList.remove('hidden');">
+        <div data-ph class="hidden text-slate-400 text-sm">Sube <code>assets/profile/experiencia.jpg</code></div>
+      </figure>
+    -->
+
+    </div>
+
+    <br>
+
+    <!-- 4) Automatizaciones — imagen izq / texto dcha -->
+    <div class="grid md:grid-cols-2 items-center gap-6" id="automatizaciones">
+
+      <!-- Trabajar Luego-->
+
+      <!--
+      <figure class="card rounded-2xl overflow-hidden h-[220px] md:h-[280px] grid place-items-center">
+        <img src="assets/profile/automatizaciones.jpg" alt="Automations pipelines"
+             class="w-full h-full object-cover"
+             onerror="this.remove(); this.parentElement.querySelector('[data-ph]').classList.remove('hidden');">
+        <div data-ph class="hidden text-slate-400 text-sm">Sube <code>assets/profile/automatizaciones.jpg</code></div>
+      </figure>
+
+      -->
+      <div class="card rounded-2xl p-6">
+        <h3 class="font-semibold">Automatizaciones</h3>
+        <ul class="list-disc pl-5 mt-2 text-slate-300 text-sm">
+          <li>Typosquatting (WHOIS/DNS) → priorización de takedown → creación de alerta en Telegram.</li>
+          <li>Agregación de señales on-chain → <code>riskScore</code> con pesos → reportes periódicos.</li>
+          <li>Jobs con n8n/Airflow · orquestación con cron/systemd.</li>
+        </ul>
+      </div>
+    </div>
+    <br>
+
+    <!-- 5) Certificaciones & Estudios — texto izq / imagen dcha -->
+    <div class="grid md:grid-cols-2 items-center gap-6" id="certificaciones">
+      <div class="card rounded-2xl p-6">
+        <h3 class="font-semibold">Certificaciones & Estudios</h3>
+        <ul class="list-disc pl-5 mt-2 text-slate-300 text-sm">
+          <li>eWPT (eLearnSecurity) *En curso*</li>
+          <li>eJPT (eLearnSecurity, 2025)</li>
+          <li>Microsoft Python Certification (2023)</li>
+          <li>Google Data Analytics Professional Certificate (2023)</li>
+          <li>CompTIA Security+ </li>
+          <li>RHCSA (Red Hat, 2024)</li>
+          <li>ASIR *en curso* (Prometheus academy)</li>
+          <li>Master Ciberseguridad *en curso* (Prometheus academy)</li>
+        </ul>
+      </div>
+
+      <!-- Trabajar Luego-->
+       <!--
+      <figure class="card rounded-2xl overflow-hidden h-[220px] md:h-[280px] grid place-items-center">
+        <img src="assets/profile/certs.jpg" alt="Certificaciones"
+             class="w-full h-full object-cover"
+             onerror="this.remove(); this.parentElement.querySelector('[data-ph]').classList.remove('hidden');">
+        <div data-ph class="hidden text-slate-400 text-sm">Sube <code>assets/profile/certs.jpg</code></div>
+      </figure>
+      -->
+    </div>
+    <br>
+
+    <!-- 6) Idiomas — imagen izq / texto dcha -->
+    <div class="grid md:grid-cols-2 items-center gap-6" id="idiomas">
+     
+     <!-- Trabajar Luego-->
+      <!--
+      <figure class="card rounded-2xl overflow-hidden h-[220px] md:h-[280px] grid place-items-center">
+        <img src="assets/profile/idiomas.jpg" alt="Idiomas / mapa"
+             class="w-full h-full object-cover"
+             onerror="this.remove(); this.parentElement.querySelector('[data-ph]').classList.remove('hidden');">
+        <div data-ph class="hidden text-slate-400 text-sm">Sube <code>assets/profile/idiomas.jpg</code></div>
+      </figure>
+      -->
+      <div class="card rounded-2xl p-6">
+        <h3 class="font-semibold">Idiomas</h3>
+        <p class="text-sm text-slate-300 mt-2">Español (nativo), Inglés (fluido), Ruso (intermedio).</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+
+  <!-- MÉTODOS -->
+  <section id="metodos" class="mx-auto max-w-6xl px-4 pb-12">
+    <h2 class="text-2xl md:text-3xl font-bold">Metodología de Auditoría</h2>
+    <p class="text-slate-400 mt-1">Cómo trabajo de punta a punta para detectar riesgo real y proponer mitigación.</p>
+
+    <div class="grid-auto mt-5">
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold" id="metodo-osint">1) Recon & OSINT</h3>
+        <p class="text-sm text-slate-400">WHOIS, DNS, Shodan, footprint en GitHub/Redes. Señales tempranas de typosquatting, hosting abusivo y opacidad.</p>
+        
+        <!--Trabajar Luego-->
+        <!--
+        <a class="inline-block mt-3 text-xs underline" href="writeups/ethereum-typosquatting.html">Ver ejemplo →</a>
+        -->
+      </div>
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold" id="metodo-onchain">2) On‑chain (Solana/Ethereum)</h3>
+        <p class="text-sm text-slate-400">Holders, LP lock, vesting, impuestos, eventos y permisos. Correlación con listados y wallets del deployer.</p>
+        <!--Trabajar Luego-->
+        <!--
+        <a class="inline-block mt-3 text-xs underline" href="/solana-rugpull-analysis.html">Ver ejemplo →</a>
+        -->
+      </div>
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold" id="metodo-contratos">3) Contratos & AppSec (EVM)</h3>
+        <p class="text-sm text-slate-400">Revisión lógica/permiso. Reentrancy, approvals, invariants con Foundry. Hardening antes de lanzar.</p>
+
+        <!--Trabajar Luego-->
+        <!--
+        <a class="inline-block mt-3 text-xs underline" href="writeups/evm-security-checklist.html">Ver ejemplo →</a>
+        -->
+      </div>
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold" id="metodo-scoring">4) Scoring & Prioridad</h3>
+        <p class="text-sm text-slate-400">Normalizo señales en <code>domainScore</code>, <code>contractScore</code> y <code>riskScore</code> con pesos y umbrales (verde/ámbar/rojo).</p>
+      </div>
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold" id="metodo-poc">5) Pruebas & PoC</h3>
+        <p class="text-sm text-slate-400">Validación manual cuando toca: reproducir riesgo, demostrar impacto y severidad con evidencias reproducibles.</p>
+      </div>
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold" id="metodo-reporte">6) Informe & Mitigación</h3>
+        <p class="text-sm text-slate-400">Informe accionable: hallazgos, prioridad, plan de mitigación y checklist para el equipo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STACK -->
+  <section id="stack" class="mx-auto max-w-6xl px-4 pb-12">
+    <h2 class="text-2xl md:text-3xl font-bold">Stack & Microservicios</h2>
+    <p class="text-slate-400 mt-1">Arquitectura modular pensada para escalar señales de riesgo.</p>
+
+    <div class="grid-auto mt-5">
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold">Scraper</h3>
+        <p class="text-sm text-slate-400">FastAPI · Workers · Retries · TTL cache. Colecta VT, Shodan, WHOIS y metadatos GitHub.</p>
+      </div>
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold">Analysis</h3>
+        <p class="text-sm text-slate-400">Heurísticas: holders, liquidez, verificado, antigüedad, reputación, endpoints RPC. Devuelve <code>domainScore</code>, <code>contractScore</code> y <code>riskScore</code>.</p>
+      </div>
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold">API Gateway</h3>
+        <p class="text-sm text-slate-400">Enrutado a microservicios internos. Rate limiting. Logs con Prometheus.</p>
+      </div>
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold">Frontend</h3>
+        <p class="text-sm text-slate-400">React + Tailwind (este MVP). GH Pages para despliegue rápido.</p>
+      </div>
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold">Orquestación</h3>
+        <p class="text-sm text-slate-400">n8n para pipelines y flujos de decisión: dominio, contrato o ambos.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICIOS -->
+  <section id="servicios" class="mx-auto max-w-6xl px-4 pb-12">
+    <h2 class="text-2xl md:text-3xl font-bold">Servicios</h2>
+    <div class="grid-auto mt-5">
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold">Auditoría de contratos (EVM / Solidity)</h3>
+        <ul class="list-disc pl-5 mt-2 text-slate-300 text-sm">
+          <li>Revisión lógica y de permisos · Reentrancy · Under/overflow · Approvals</li>
+          <li>Pruebas con Foundry (unit, invariant), cobertura y mitigaciones</li>
+        </ul>
+      </div>
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold">Análisis de tokens y pools (Solana/Ethereum)</h3>
+        <ul class="list-disc pl-5 mt-2 text-slate-300 text-sm">
+          <li>Distribución de holders, liquidez, vesting, tax/blacklists</li>
+          <li>Alertas de <i>rug</i> y señales tempranas de manipulación</li>
+        </ul>
+      </div>
+      <div class="card rounded-2xl p-5">
+        <h3 class="font-semibold">OSINT anti‑phishing</h3>
+        <ul class="list-disc pl-5 mt-2 text-slate-300 text-sm">
+          <li>Typosquatting, hosting abusivo, evidencias para takedown</li>
+          <li>Playbooks para respuesta y monitorización continua</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTO -->
+  <section id="contacto" class="mx-auto max-w-6xl px-4 pb-16">
+    <div class="card rounded-2xl p-6">
+      <h2 class="text-2xl md:text-3xl font-bold">Contacto</h2>
+      <p class="text-slate-300 mt-2">¿Quieres auditar un contrato, revisar una memecoin o montar un pipeline de riesgo?</p>
+      <div class="mt-4 flex flex-wrap gap-3">
+        <a id="emailLink" class="px-4 py-2 rounded-xl bg-cyan-400/20 border border-cyan-300/40 hover:bg-cyan-300/30" href="#">Escríbeme</a>
+        <a class="px-4 py-2 rounded-xl border border-white/10 hover:border-white/20" target="_blank" rel="noreferrer" href="https://github.com/santilpz28">GitHub</a>
+      </div>
+
+      <!--
+      <p class="text-xs text-slate-500 mt-4">Edita el email en <code>CONFIG.email</code> (arriba en el script) para activar el botón.</p>
+    </div>
+    -->
+  </section>
+
+  <footer class="border-t border-white/10">
+    <div class="mx-auto max-w-6xl px-4 py-6 text-xs text-slate-400">© 2025 Santi · Web3 Security — Hecho con ♥ y datos.</div>
+  </footer>
+
+  <!-- SCRIPT: Config tema + email + analizador (comentado por ahora) -->
+  <script>
+    const CONFIG = {
+      owner: "Santi",
+      email: "santi.lpz28@gmail.com", // ← cambia esto
+      github: "https://github.com/santilpz28",
+      apiBaseUrl: "" // ← si tienes /analyze en Render/Azure, pon la URL aquí
+    };
+
+    // Tema
+    const themeBtn = document.getElementById('themeBtn');
+    themeBtn?.addEventListener('click', () => document.documentElement.classList.toggle('invert'));
+
+    // Contacto
+    const emailLink = document.getElementById('emailLink');
+    const setupEmail = () => {
+      if (!emailLink) return;
+      if (CONFIG.email && CONFIG.email.includes('@') && !CONFIG.email.includes('REPLACE')) {
+        emailLink.href = `mailto:${CONFIG.email}?subject=Consulta auditoría Web3`;
+      } else {
+        emailLink.classList.add('opacity-60','pointer-events-none');
+        emailLink.title = '';
+      }
+    };
+    setupEmail();
+
+    // Utils cadena (para cuando actives el analizador)
+    function guessType(input, forced) {
+      if (forced && forced !== 'auto') return forced;
+      const v = (input||'').trim();
+      if (!v) return 'unknown';
+      if (v.startsWith('0x') && v.length === 42) return 'eth';
+      if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(v)) return 'sol'; // base58-ish
+      if (v.includes('.')) return 'domain';
+      return 'unknown';
+    }
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+    function localHeuristics(input, type){
+      const s = (input||'').toLowerCase();
+      let domainScore = null, contractScore = null, reasons = [];
+
+      if (type === 'domain') {
+        domainScore = 100;
+        if (/(airdrop|free|pump|moon|elon|swap|cash|staking|giveaway)/.test(s)) { domainScore -= 25; reasons.push('palabras sospechosas'); }
+        if (s.split('.').pop().length > 3) { domainScore -= 10; reasons.push('TLD raro'); }
+        if (s.length > 18) { domainScore -= 5; reasons.push('dominio largo'); }
+      }
+
+      if (type === 'eth') {
+        contractScore = 80;
+        if (/dead|beef|cafe/.test(s)) { contractScore -= 5; reasons.push('patrón curioso en address'); }
+      }
+
+      if (type === 'sol') {
+        contractScore = 82;
+        if (/^111/.test(s)) { contractScore -= 7; reasons.push('pattern base58'); }
+      }
+
+      const ds = domainScore ?? 80;
+      const cs = contractScore ?? 80;
+      const risk = clamp(Math.round(100 - (0.55*ds + 0.45*cs)), 0, 100);
+      return { domainScore: domainScore ?? null, contractScore: contractScore ?? null, riskScore: risk, reasons };
+    }
+
+    async function callApi(input, type){
+      if (!CONFIG.apiBaseUrl) return null; // sin backend
+      try {
+        const res = await fetch(`${CONFIG.apiBaseUrl.replace(/\/$/, '')}/analyze`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: input, type })
+        });
+        if (!res.ok) throw new Error('API error');
+        return await res.json();
+      } catch (e) { return null; }
+    }
+
+    function renderResult(container, input, type, data, source) {
+      const badge = (v, label) => `<span class="px-2 py-1 rounded-md text-[11px] border border-white/10">${label}: <b>${v}</b></span>`;
+      const riskColor = (r)=> r<33? 'text-[var(--ok)]' : r<66? 'text-[var(--warn)]' : 'text-[var(--bad)]';
+      container.innerHTML = `
+        <div class="glass rounded-2xl p-5">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <div class="text-xs text-slate-400">${type.toUpperCase()}</div>
+              <div class="mt-1 text-xl font-semibold break-all">${input}</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs text-slate-400">Risk Score</div>
+              <div class="text-3xl font-extrabold ${riskColor(data.riskScore)}">${data.riskScore}</div>
+            </div>
+          </div>
+          <div class="mt-4 flex flex-wrap gap-2 text-xs">
+            ${data.domainScore!=null? badge(data.domainScore,'domainScore'):''}
+            ${data.contractScore!=null? badge(data.contractScore,'contractScore'):''}
+            ${badge(source, 'fuente')}
+          </div>
+          ${data.reasons?.length? `<ul class="mt-3 list-disc pl-5 text-slate-300 text-sm">${data.reasons.map(r=>`<li>${r}</li>`).join('')}</ul>`: ''}
+          <p class="mt-3 text-[12px] text-slate-500">* Resultado orientativo. No es consejo financiero. Confirma siempre on‑chain.</p>
+        </div>`;
+      container.classList.remove('hidden');
+    }
+  </script>
+
+</body>
+</html>
