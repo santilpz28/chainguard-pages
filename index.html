@@ -13,16 +13,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-  <!-- Tailwind (solo para utilidades sueltas que quieras mantener) -->
+  <!-- Tailwind  -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- CSS propio (tokens + componentes + semántica) -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- Fallback mínimo opcional
-  <style>
-    /* Si por lo que sea no carga style.css, el sitio sigue legible */
-  </style> -->
+
 </head>
 <body>
   <!-- Accesibilidad: enlace para saltar al contenido principal -->
@@ -147,7 +144,7 @@
             <p class="text-xs text-slate-500 mt-2">Off-topic: volley, montaña y naturaleza → cabeza fría en incidentes.</p>
           </div>
 
-          <!-- Imagen completa (sin recortes) -->
+          <!-- Imagen completa -->
           <figure class="card profile-media">
             <img src="./cv_photo.png" alt="Santi — retrato profesional" class="profile-img">
           </figure>
@@ -402,7 +399,7 @@
         <h2 class="text-2xl md:text-3xl font-bold">Contacto</h2>
         <p class="mt-2">¿Quieres auditar un contrato, revisar una memecoin o montar un pipeline de riesgo?</p>
 
-        <!-- Form accesible (solo UI) -->
+        <!-- Form accesible -->
         <form class="form mt-6" action="#" method="post" novalidate>
           <div class="form-row">
             <div class="form-field">
@@ -428,7 +425,9 @@
         </div>
 
         <!--
-        <p class="text-xs text-slate-500 mt-4">Edita el email en <code>CONFIG.email</code> (arriba en el script) para activar el botón.</p>
+        <p class="text-xs text-slate-500 mt-4">
+          * Demo: el formulario no envía datos aún. Configura la variable <code>apiBaseUrl
+        </code> (arriba en el script) para activar el botón.</p>
         -->
       </div>
     </section>
@@ -480,7 +479,7 @@
     }
   })();
 
-  // ---------- Utils cadena (cuando actives el analizador) ----------
+  // --------Trabajar luego cuando se active el analizadorr) -------
   function guessType(input, forced) {
     if (forced && forced !== 'auto') return forced;
     const v = (input||'').trim();
