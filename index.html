@@ -2,7 +2,7 @@
 <html lang="es" class="scroll-smooth">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Santi · Web3 Security — Solana & Ethereum</title>
   <meta name="description" content="Auditoría, OSINT y análisis de riesgo en Web3 (Solana & Ethereum)." />
   <meta name="author" content="Santiago López Castaño" />
@@ -17,40 +17,23 @@
 
   <!-- JSON-LD -->
   <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"Person",
-    "name":"Santiago López Castaño",
-    "url":"https://santilpz28.github.io/chainguard-pages/",
-    "jobTitle":"Web3 Security Analyst",
-    "sameAs":["https://github.com/santilpz28"]
-  }
+  {"@context":"https://schema.org","@type":"Person","name":"Santiago López Castaño","url":"https://santilpz28.github.io/chainguard-pages/","jobTitle":"Web3 Security Analyst","sameAs":["https://github.com/santilpz28"]}
   </script>
   <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"WebSite",
-    "name":"ChainGuard · Santi",
-    "url":"https://santilpz28.github.io/chainguard-pages/",
-    "potentialAction":{
-      "@type":"SearchAction",
-      "target":"https://santilpz28.github.io/chainguard-pages/?q={search_term_string}",
-      "query-input":"required name=search_term_string"
-    }
-  }
+  {"@context":"https://schema.org","@type":"WebSite","name":"ChainGuard · Santi","url":"https://santilpz28.github.io/chainguard-pages/","potentialAction":{"@type":"SearchAction","target":"https://santilpz28.github.io/chainguard-pages/?q={search_term_string}","query-input":"required name=search_term_string"}}
   </script>
 
-  <!-- Fonts & Tailwind -->
+  <!-- Fuentes + Tailwind -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
+  <!-- CSS (cache-bust) -->
+  <link rel="stylesheet" href="style.css?v=2025-11-08b">
 </head>
 <body>
-  <!-- Accesibilidad: enlace para saltar al contenido principal -->
+  <!-- Accesibilidad -->
   <a class="skip-link" href="#main">Saltar al contenido</a>
 
   <!-- HEADER -->
@@ -62,6 +45,8 @@
       </a>
 
       <nav class="site-nav hidden md:flex" aria-label="Principal">
+        <!-- TRABAJAR LUEGO: activar Analizador cuando haya backend -->
+        <!-- <a href="#analyzer">Analizador</a> -->
         <a href="#writeups">Writeups</a>
         <a href="#perfil">Perfil</a>
         <a href="#metodos">Métodos</a>
@@ -83,16 +68,19 @@
     <!-- HERO -->
     <section id="top" class="relative">
       <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-500/10 via-transparent to-transparent"></div>
+
       <div class="section section-pad">
         <div class="grid md:grid-cols-2 items-center gap-8">
           <div>
             <h1 class="title-xl">Seguridad <span class="accent">Web3</span> para <span class="accent">Solana</span> & <span class="accent">Ethereum</span></h1>
             <p class="mt-4 lead">Auditoría, OSINT y análisis de riesgo. Pentesting aplicado a dApps, contratos y ecosistemas DeFi. Datos duros, cero humo.</p>
+
             <div class="mt-6 flex flex-wrap gap-3">
               <span class="chip text-sm">Solana · Token Program · Anchor</span>
               <span class="chip text-sm">Ethereum · EVM · Foundry</span>
               <span class="chip text-sm">OSINT · Anti-Scam · Risk Score</span>
             </div>
+
             <div class="mt-8 flex gap-3">
               <a href="#writeups" class="btn btn-outline">Leer writeups</a>
             </div>
@@ -105,6 +93,47 @@
     <section id="writeups" class="section section-pad">
       <h2 class="text-2xl md:text-3xl font-bold">Writeups & Auditorías</h2>
       <p class="lead mt-1">Casos reales y notas técnicas. Sin spoilers, con PoC cuando aplica.</p>
+
+      <!-- TRABAJAR LUEGO: cards reales cuando publiques posts -->
+      <!--
+      <div class="auto-grid mt-5">
+        <a href="/solana-rugpull-analysis.html" class="card p-5 block hover:shadow-lg">
+          <div class="text-xs text-slate-400">Solana · Rugpull · Token Program</div>
+          <h3 class="mt-2 text-lg font-semibold">Memecoin con dump coordinado — señales tempranas y on-chain</h3>
+          <p class="mt-2 text-slate-300">Heurísticas de pools, distribución de holders, timing de listados y wallets vinculadas.</p>
+          <div class="mt-3 flex gap-2 text-xs">
+            <span class="chip">On-chain</span>
+            <span class="chip">OSINT</span>
+            <span class="chip">Alerting</span>
+          </div>
+          <div class="mt-3 text-cyan-400 text-sm">Leer más →</div>
+        </a>
+
+        <a href="writeups/ethereum-typosquatting.html" class="card p-5 block hover:shadow-lg">
+          <div class="text-xs text-slate-400">Ethereum · AppSec · Phishing</div>
+          <h3 class="mt-2 text-lg font-semibold">Typosquatting de wallets — detección y takedown coordinado</h3>
+          <p class="mt-2 text-slate-300">Pipeline para detectar dominios maliciosos y priorizar derribos: WHOIS + DNS + hosting + evidencia.</p>
+          <div class="mt-3 flex gap-2 text-xs">
+            <span class="chip">WHOIS</span>
+            <span class="chip">Shodan</span>
+            <span class="chip">Playbooks</span>
+          </div>
+          <div class="mt-3 text-cyan-400 text-sm">Leer más →</div>
+        </a>
+
+        <a href="writeups/evm-security-checklist.html" class="card p-5 block hover:shadow-lg">
+          <div class="text-xs text-slate-400">EVM · Foundry · Seguridad</div>
+          <h3 class="mt-2 text-lg font-semibold">Reentrancy & approvals: checklist mínimo antes de lanzar</h3>
+          <p class="mt-2 text-slate-300">Pruebas unitarias con Foundry, invariants y análisis de permisos. Lo que sí o sí reviso.</p>
+          <div class="mt-3 flex gap-2 text-xs">
+            <span class="chip">Foundry</span>
+            <span class="chip">Invariants</span>
+            <span class="chip">Hardening</span>
+          </div>
+          <div class="mt-3 text-cyan-400 text-sm">Leer más →</div>
+        </a>
+      </div>
+      -->
     </section>
 
     <!-- PERFIL -->
@@ -113,6 +142,7 @@
       <p class="lead mt-1">Analista de datos & ciberseguridad para Web3. Audito Solana & EVM con foco en señales tempranas, automatización y entregables accionables.</p>
 
       <div class="space-y-10 md:space-y-14 mt-6">
+        <!-- 1) Quién soy — texto izq / imagen dcha -->
         <div class="grid md:grid-cols-2 items-center gap-6">
           <div class="card p-6">
             <h2 class="font-semibold">Quién soy</h2>
@@ -122,11 +152,14 @@
             </p>
             <p class="text-xs text-slate-500 mt-2">Off-topic: volley, montaña y naturaleza → cabeza fría en incidentes.</p>
           </div>
+
+          <!-- Imagen completa -->
           <figure class="card profile-media">
             <img src="./cv_photo.png" alt="Santi — retrato profesional" class="profile-img">
           </figure>
         </div>
 
+        <!-- 2) Navegación interna -->
         <nav class="mt-2" aria-label="Secciones del perfil">
           <ul class="flex gap-4">
             <li><a href="#Herramientas" class="text-slate-300 hover:text-slate-100">Herramientas</a></li>
@@ -147,20 +180,41 @@
 
         <br>
 
+        <!-- 3) Experiencia -->
         <div class="grid md:grid-cols-2 items-center gap-6" id="experiencia">
           <div class="card p-6">
             <h3 class="font-semibold">Experiencia destacada</h3>
             <ul class="list-disc pl-5 mt-2 text-slate-300 text-sm">
-              <li>Data Analyst @ General Mills — automatizaciones con Python + dashboards (Tableau/Power BI) para control/fraude.</li>
+              <li>Data Analyst @ General Mills — automatizaciones con Python + dashboards (Tableau/Power BI).</li>
               <li>Operaciones @ Wild About Lapland — admin Linux on-prem + mejora operativa con datos.</li>
               <li>Proyectos: port-scanner en Python, auditorías Web3 (EVM/Solana), pipelines de risk scoring.</li>
             </ul>
           </div>
+
+          <!-- TRABAJAR LUEGO: imagen de experiencia -->
+          <!--
+          <figure class="card overflow-hidden h-[220px] md:h-[280px] grid place-items-center">
+            <img src="assets/profile/experiencia.jpg" alt="Timeline/experiencia"
+                 class="w-full h-full object-cover"
+                 onerror="this.remove(); this.parentElement.querySelector('[data-ph]').classList.remove('hidden');">
+            <div data-ph class="hidden text-slate-400 text-sm">Sube <code>assets/profile/experiencia.jpg</code></div>
+          </figure>
+          -->
         </div>
 
         <br>
 
+        <!-- 4) Automatizaciones -->
         <div class="grid md:grid-cols-2 items-center gap-6" id="automatizaciones">
+          <!-- TRABAJAR LUEGO: imagen de automatizaciones -->
+          <!--
+          <figure class="card overflow-hidden h-[220px] md:h-[280px] grid place-items-center">
+            <img src="assets/profile/automatizaciones.jpg" alt="Automations pipelines"
+                 class="w-full h-full object-cover"
+                 onerror="this.remove(); this.parentElement.querySelector('[data-ph]').classList.remove('hidden');">
+            <div data-ph class="hidden text-slate-400 text-sm">Sube <code>assets/profile/automatizaciones.jpg</code></div>
+          </figure>
+          -->
           <div class="card p-6">
             <h3 class="font-semibold">Automatizaciones</h3>
             <ul class="list-disc pl-5 mt-2 text-slate-300 text-sm">
@@ -173,6 +227,7 @@
 
         <br>
 
+        <!-- 5) Certificaciones -->
         <div class="grid md:grid-cols-2 items-center gap-6" id="certificaciones">
           <div class="card p-6">
             <h3 class="font-semibold">Certificaciones & Estudios</h3>
@@ -180,7 +235,7 @@
               <li>eWPT (eLearnSecurity) *En curso*</li>
               <li>eJPT (eLearnSecurity, 2025)</li>
               <li>Microsoft Python Certification (2023)</li>
-              <li>Google Data Analytics Professional Certificate (2023)</li>
+              <li>Google DA Professional Certificate (2023)</li>
               <li>CompTIA Security+</li>
               <li>RHCSA (Red Hat, 2024)</li>
               <li>ASIR *en curso* (Prometheus academy)</li>
@@ -191,6 +246,7 @@
 
         <br>
 
+        <!-- 6) Idiomas -->
         <div class="grid md:grid-cols-2 items-center gap-6" id="idiomas">
           <div class="card p-6">
             <h3 class="font-semibold">Idiomas</h3>
@@ -267,14 +323,17 @@
           <img src="https://picsum.photos/seed/evm/640/360" alt="Auditoría EVM — Reentrancy & permisos" class="w-full h-40 object-cover" loading="lazy">
           <div class="p-5"><h3 class="font-semibold">Auditoría EVM — Reentrancy</h3><p class="text-sm text-slate-300 mt-1">Hallazgos de reentrancy y control de acceso.</p></div>
         </article>
+
         <article class="card overflow-hidden">
           <img src="https://picsum.photos/seed/sol/640/360" alt="Análisis on-chain Solana — Liquidez & holders" class="w-full h-40 object-cover" loading="lazy">
           <div class="p-5"><h3 class="font-semibold">Solana — Liquidez & Holders</h3><p class="text-sm text-slate-300 mt-1">LP lock, vesting, impuestos, listados.</p></div>
         </article>
+
         <article class="card overflow-hidden">
           <img src="https://picsum.photos/seed/osint/640/360" alt="OSINT anti-phishing — Typosquatting y evidencias" class="w-full h-40 object-cover" loading="lazy">
           <div class="p-5"><h3 class="font-semibold">OSINT — Typosquatting</h3><p class="text-sm text-slate-300 mt-1">Detección y priorización de takedown.</p></div>
         </article>
+
         <article class="card overflow-hidden">
           <img src="https://picsum.photos/seed/scoring/640/360" alt="Risk scoring — Señales OSINT y on-chain" class="w-full h-40 object-cover" loading="lazy">
           <div class="p-5"><h3 class="font-semibold">Risk Scoring</h3><p class="text-sm text-slate-300 mt-1">Normalización en métricas accionables.</p></div>
@@ -285,13 +344,11 @@
     <!-- TIMELINE -->
     <section id="timeline" class="section section-pad">
       <h2 class="text-2xl md:text-3xl font-bold">Timeline · Experiencia & Certificaciones</h2>
-      <p class="lead mt-1">Hover en el círculo ⇒ fecha. Click ⇒ pop-up con detalle. Búsqueda, filtros por tags y tipo, teclado, countdown.</p>
+      <p class="lead mt-1">Hover ⇒ fecha. Click ⇒ pop-up. Filtros por tags y tipo, teclado y countdown.</p>
 
       <!-- Controles -->
       <div class="tl-controls">
-        <div class="search" role="search">
-          <input id="q" type="search" placeholder="Buscar (título, tags, año)…" aria-label="Buscar en timeline" />
-        </div>
+        <div class="search" role="search"><input id="q" type="search" placeholder="Buscar (título, tags, año)…" aria-label="Buscar en timeline" /></div>
         <div id="chipbar" class="chipbar" aria-label="Filtrar por etiquetas"></div>
         <div id="typebar" class="typebar" role="toolbar" aria-label="Filtrar por tipo"></div>
 
@@ -305,112 +362,17 @@
       <div id="resultInfo" class="result-info" aria-live="polite"></div>
       <div id="tl-grid" class="timeline" aria-label="Línea de tiempo"></div>
 
-      <!-- Datos embebidos -->
+      <!-- Datos -->
       <script type="application/json" id="timeline-data">[
-        {
-          "id": "wal-ops",
-          "type": "exp",
-          "title": "Ops @ Wild About Lapland (FI)",
-          "subtitle": "Linux on-prem + mejora operativa",
-          "date": "2022-01-10",
-          "end": "2023-01-10",
-          "dateLabel": "Ene '22",
-          "tags": ["Linux","Ops","On-prem"],
-          "side": "left",
-          "body": "<ul><li>Administración ligera Linux y soporte a operaciones</li><li>Optimización de procesos usando datos</li></ul>"
-        },
-        {
-          "id": "microsoft-python-2023",
-          "type": "cert",
-          "title": "Microsoft Python Certification",
-          "subtitle": "Programación en Python",
-          "date": "2023-04-01",
-          "dateLabel": "Abr '23",
-          "tags": ["Python","Dev"],
-          "side": "right",
-          "body": "<p>Fundamentos + scripting para automatización y análisis.</p>"
-        },
-        {
-          "id": "google-da-2023",
-          "type": "cert",
-          "title": "Google Data Analytics Professional Certificate",
-          "subtitle": "Análisis de datos",
-          "date": "2023-06-01",
-          "dateLabel": "Jun '23",
-          "tags": ["Data","BI","Analítica"],
-          "side": "left",
-          "body": "<p>Pipeline de datos, SQL básico, visualización y métricas.</p>"
-        },
-        {
-          "id": "rhcsa-2024",
-          "type": "cert",
-          "title": "RHCSA",
-          "subtitle": "Red Hat Certified System Administrator",
-          "date": "2024-05-01",
-          "dateLabel": "May '24",
-          "tags": ["Linux","SysAdmin"],
-          "side": "right",
-          "body": "<p>Gestión de usuarios, servicios, redes y seguridad en RHEL.</p>"
-        },
-        {
-          "id": "securityplus-2024",
-          "type": "cert",
-          "title": "CompTIA Security+",
-          "subtitle": "Seguridad generalista",
-          "date": "2024-09-01",
-          "dateLabel": "Sep '24",
-          "tags": ["Security","Blue/Red"],
-          "side": "left",
-          "body": "<p>Fundamentos de seguridad, redes, gestión de riesgo y cumplimiento.</p>"
-        },
-        {
-          "id": "gm-data-analyst",
-          "type": "exp",
-          "title": "Data Analyst / Controller @ General Mills",
-          "subtitle": "Automatizaciones SAP → Power BI",
-          "date": "2024-11-01",
-          "end": "present",
-          "dateLabel": "Nov '24",
-          "tags": ["Data","BI","SAP","Power BI","VBA"],
-          "side": "right",
-          "body": "<ul><li>FS10N + PowerQuery + VBA → ahorro ~6h/mes</li><li>Control de costes y reporting periódico</li></ul>"
-        },
-        {
-          "id": "ewpt-ongoing",
-          "type": "cert",
-          "title": "eWPT (en curso)",
-          "subtitle": "Web Application Penetration Testing",
-          "date": "2025-01-15",
-          "end": "present",
-          "dateLabel": "Ene '25",
-          "tags": ["Pentest","Web"],
-          "side": "left",
-          "body": "<p>Laboratorios de SQLi/XSS, auth, lógica y hardening de apps.</p>"
-        },
-        {
-          "id": "ejpt-2025",
-          "type": "cert",
-          "title": "eJPT",
-          "subtitle": "eLearnSecurity",
-          "date": "2025-10-01",
-          "dateLabel": "Oct '25",
-          "tags": ["Pentest","Networks","Web"],
-          "side": "right",
-          "body": "<p>Enumeración/redes, web basics, explotación inicial y reporting.</p>"
-        },
-        {
-          "id": "post-solana-audit-1",
-          "type": "post",
-          "title": "Post: Auditoría segura en Solana",
-          "subtitle": "Checklist + PoCs",
-          "date": "2025-11-20",
-          "dateLabel": "Nov '25",
-          "tags": ["Web3","Solana","Writeup"],
-          "side": "left",
-          "body": "<p>Permisos, ataques comunes en SPL y buenas prácticas.</p>",
-          "publishAt": "2025-12-20T09:00:00Z",
-          "dropTitle": "Auditoría segura en Solana"
-        }
+        {"id":"wal-ops","type":"exp","title":"Ops @ Wild About Lapland (FI)","subtitle":"Linux on-prem + mejora operativa","date":"2022-01-10","end":"2023-01-10","dateLabel":"Ene '22","tags":["Linux","Ops","On-prem"],"side":"left","body":"<ul><li>Administración ligera Linux y soporte a operaciones</li><li>Optimización de procesos usando datos</li></ul>"},
+        {"id":"microsoft-python-2023","type":"cert","title":"Microsoft Python Certification","subtitle":"Programación en Python","date":"2023-04-01","dateLabel":"Abr '23","tags":["Python","Dev"],"side":"right","body":"<p>Fundamentos + scripting para automatización y análisis.</p>"},
+        {"id":"google-da-2023","type":"cert","title":"Google Data Analytics Professional Certificate","subtitle":"Análisis de datos","date":"2023-06-01","dateLabel":"Jun '23","tags":["Data","BI","Analítica"],"side":"left","body":"<p>Pipeline de datos, SQL básico, visualización y métricas.</p>"},
+        {"id":"rhcsa-2024","type":"cert","title":"RHCSA","subtitle":"Red Hat Certified System Administrator","date":"2024-05-01","dateLabel":"May '24","tags":["Linux","SysAdmin"],"side":"right","body":"<p>Gestión de usuarios, servicios, redes y seguridad en RHEL.</p>"},
+        {"id":"securityplus-2024","type":"cert","title":"CompTIA Security+","subtitle":"Seguridad generalista","date":"2024-09-01","dateLabel":"Sep '24","tags":["Security","Blue/Red"],"side":"left","body":"<p>Fundamentos de seguridad, redes, gestión de riesgo y cumplimiento.</p>"},
+        {"id":"gm-data-analyst","type":"exp","title":"Data Analyst / Controller @ General Mills","subtitle":"Automatizaciones SAP → Power BI","date":"2024-11-01","end":"present","dateLabel":"Nov '24","tags":["Data","BI","SAP","Power BI","VBA"],"side":"right","body":"<ul><li>FS10N + PowerQuery + VBA → ahorro ~6h/mes</li><li>Control de costes y reporting periódico</li></ul>"},
+        {"id":"ewpt-ongoing","type":"cert","title":"eWPT (en curso)","subtitle":"Web Application Penetration Testing","date":"2025-01-15","end":"present","dateLabel":"Ene '25","tags":["Pentest","Web"],"side":"left","body":"<p>Laboratorios de SQLi/XSS, auth, lógica y hardening de apps.</p>"},
+        {"id":"ejpt-2025","type":"cert","title":"eJPT","subtitle":"eLearnSecurity","date":"2025-10-01","dateLabel":"Oct '25","tags":["Pentest","Networks","Web"],"side":"right","body":"<p>Enumeración/redes, web basics, explotación inicial y reporting.</p>"},
+        {"id":"post-solana-audit-1","type":"post","title":"Post: Auditoría segura en Solana","subtitle":"Checklist + PoCs","date":"2025-11-20","dateLabel":"Nov '25","tags":["Web3","Solana","Writeup"],"side":"left","body":"<p>Permisos, ataques comunes en SPL y buenas prácticas.</p>","publishAt":"2025-12-20T09:00:00Z","dropTitle":"Auditoría segura en Solana"}
       ]</script>
     </section>
 
@@ -443,6 +405,8 @@
           <a id="emailLink" class="btn btn-outline" href="#">Escríbeme</a>
           <a class="btn btn-outline" target="_blank" rel="noreferrer" href="https://github.com/santilpz28">GitHub</a>
         </div>
+
+        <!-- MIRAR LUEGO: cambiar a endpoint real con Netlify/Forms o FastAPI -->
       </div>
     </section>
   </main>
@@ -453,117 +417,63 @@
 
   <!-- SCRIPT -->
   <script>
-  const CONFIG = {
-    owner: "Santi",
-    email: "santi.lpz28@gmail.com",
-    github: "https://github.com/santilpz28",
-    apiBaseUrl: ""
-  };
+  const CONFIG = { owner:"Santi", email:"santi.lpz28@gmail.com", github:"https://github.com/santilpz28", apiBaseUrl:"" };
 
-  // ---------- Tema ----------
-  const THEME_KEY = 'cg-theme';
-  const themeBtn = document.getElementById('themeBtn');
-  function applyTheme(mode){
-    document.documentElement.classList.toggle('theme-light', mode === 'light');
-    localStorage.setItem(THEME_KEY, mode);
-    if (themeBtn) themeBtn.textContent = mode === 'light' ? 'Tema: Claro' : 'Tema: Oscuro';
-  }
-  (function initTheme(){
-    const saved = localStorage.getItem(THEME_KEY);
-    const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-    applyTheme(saved ? saved : (prefersLight ? 'light' : 'dark'));
-  })();
-  themeBtn?.addEventListener('click', () => {
-    const isLight = document.documentElement.classList.contains('theme-light');
-    applyTheme(isLight ? 'dark' : 'light');
-  });
+  // Tema
+  const THEME_KEY='cg-theme'; const themeBtn=document.getElementById('themeBtn');
+  function applyTheme(mode){ document.documentElement.classList.toggle('theme-light', mode==='light'); localStorage.setItem(THEME_KEY,mode); if(themeBtn) themeBtn.textContent = mode==='light'?'Tema: Claro':'Tema: Oscuro'; }
+  (function(){ const saved=localStorage.getItem(THEME_KEY); const prefersLight=window.matchMedia?.('(prefers-color-scheme: light)').matches; applyTheme(saved?saved:(prefersLight?'light':'dark')); })();
+  themeBtn?.addEventListener('click',()=>{ const isLight=document.documentElement.classList.contains('theme-light'); applyTheme(isLight?'dark':'light'); });
 
-  // ---------- Contacto (mailto) ----------
-  (function setupEmail(){
-    const emailLink = document.getElementById('emailLink');
-    if (!emailLink) return;
-    if (CONFIG.email && CONFIG.email.includes('@') && !CONFIG.email.includes('REPLACE')) {
-      emailLink.href = `mailto:${CONFIG.email}?subject=Consulta auditoría Web3`;
-    } else {
-      emailLink.classList.add('opacity-60','pointer-events-none'); emailLink.title = '';
-    }
-  })();
+  // Contacto
+  (function(){ const a=document.getElementById('emailLink'); if(!a) return; if(CONFIG.email?.includes('@')) a.href=`mailto:${CONFIG.email}?subject=Consulta auditoría Web3`; else { a.classList.add('opacity-60','pointer-events-none'); a.title=''; } })();
 
-  // =========================
-  // TIMELINE INTERACTIVO — filtros tipo, teclado, SEO/acc, popover fijo, countdown, ICS/CSV
-  // =========================
+  // ========================= TIMELINE =========================
   (function(){
-    const $ = (s, el=document)=>el.querySelector(s);
-    const $$ = (s, el=document)=>Array.from(el.querySelectorAll(s));
+    const $=(s,el=document)=>el.querySelector(s);
+    const $$=(s,el=document)=>Array.from(el.querySelectorAll(s));
+    const isMobile=()=> window.matchMedia('(max-width:700px)').matches;
 
     const data = JSON.parse($('#timeline-data').textContent);
+    const grid=$('#tl-grid'), chipbar=$('#chipbar'), typebar=$('#typebar'), q=$('#q'), result=$('#resultInfo');
+    const nextdrop=$('#nextdrop'), countEl=$('#count'), dropTitle=$('#dropTitle');
 
-    const grid   = $('#tl-grid');
-    const chipbar= $('#chipbar');
-    const typebar= $('#typebar');
-    const q      = $('#q');
-    const result = $('#resultInfo');
-    const nextdrop = $('#nextdrop');
-    const countEl  = $('#count');
-    const dropTitle= $('#dropTitle');
+    // SCRIM para móvil (overlay)
+    let scrim = $('#scrim');
+    if(!scrim){ scrim=document.createElement('div'); scrim.id='scrim'; scrim.className='scrim'; document.body.appendChild(scrim); }
+    scrim.addEventListener('click', ()=> closeAll());
 
-    const fmtDate  = (iso)=> new Date(iso).toLocaleDateString('es-ES', {year:'numeric', month:'short'});
-    const fmtRange = (start, end) => end
-      ? `${fmtDate(start)} — ${end==='present' ? 'Presente' : fmtDate(end)}`
-      : fmtDate(start);
-
-    const uniq = xs => [...new Set(xs)];
-    const allTags  = uniq(data.flatMap(x=>x.tags||[])).sort();
-    const allTypes = uniq(data.map(x=>x.type||'exp'));
-    const activeTags  = new Set();
-    const activeTypes = new Set(allTypes); // por defecto: todos ON
+    const fmtDate=(iso)=> new Date(iso).toLocaleDateString('es-ES',{year:'numeric',month:'short'});
+    const fmtRange=(a,b)=> b ? `${fmtDate(a)} — ${b==='present'?'Presente':fmtDate(b)}` : fmtDate(a);
+    const uniq=xs=>[...new Set(xs)];
+    const allTags=uniq(data.flatMap(x=>x.tags||[])).sort();
+    const allTypes=uniq(data.map(x=>x.type||'exp'));
+    const activeTags=new Set();
+    const activeTypes=new Set(allTypes);
 
     // Chips por tag
     function renderChips(){
-      chipbar.innerHTML = '';
+      chipbar.innerHTML='';
       allTags.forEach(t=>{
-        const b = document.createElement('button');
-        b.className = 'chip'; b.textContent = t; b.dataset.tag=t; b.dataset.active='false';
-        b.addEventListener('click', ()=>{
-          const on = b.dataset.active !== 'true';
-          b.dataset.active = on ? 'true' : 'false';
-          if (on) activeTags.add(t); else activeTags.delete(t);
-          render();
-        });
+        const b=document.createElement('button'); b.className='chip'; b.textContent=t; b.dataset.tag=t; b.dataset.active='false';
+        b.addEventListener('click',()=>{ const on=b.dataset.active!=='true'; b.dataset.active=on?'true':'false'; if(on) activeTags.add(t); else activeTags.delete(t); render(); });
         chipbar.appendChild(b);
       });
     }
 
     // Toggles por tipo
     function renderTypeToggles(){
-      typebar.innerHTML = '';
+      typebar.innerHTML='';
       allTypes.forEach(t=>{
-        const b = document.createElement('button');
-        b.className = 'toggle';
-        b.textContent = t.toUpperCase();
-        b.dataset.on = 'true';
-        b.setAttribute('aria-pressed','true');
-        b.addEventListener('click', ()=>{
-          const on = b.dataset.on === 'true';
-          b.dataset.on = on ? 'false' : 'true';
-          b.setAttribute('aria-pressed', on ? 'false' : 'true');
-          if(on) activeTypes.delete(t); else activeTypes.add(t);
-          render();
-        });
+        const b=document.createElement('button'); b.className='toggle'; b.textContent=t.toUpperCase(); b.dataset.on='true'; b.setAttribute('aria-pressed','true');
+        b.addEventListener('click',()=>{ const on=b.dataset.on==='true'; b.dataset.on=on?'false':'true'; b.setAttribute('aria-pressed', on?'false':'true'); if(on) activeTypes.delete(t); else activeTypes.add(t); render(); });
         typebar.appendChild(b);
       });
     }
 
-    // Utilidades descarga
-    function dl(name, text, mime='text/plain'){
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob([text], {type:mime}));
-      a.download = name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 400);
-    }
-    function ics(e){
-      const dt = d=> new Date(d).toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
-      const endIso = e.end && e.end!=='present' ? e.end : e.date;
-      return `BEGIN:VCALENDAR
+    // Utils descarga
+    function dl(name,text,mime='text/plain'){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type:mime})); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),400); }
+    function ics(e){ const dt=d=>new Date(d).toISOString().replace(/[-:]/g,'').split('.')[0]+'Z'; const endIso=e.end&&e.end!=='present'?e.end:e.date; return `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//chainguard//timeline//ES
 BEGIN:VEVENT
@@ -572,45 +482,29 @@ DTSTAMP:${dt(new Date())}
 DTSTART:${dt(e.date)}
 DTEND:${dt(endIso)}
 SUMMARY:${e.title}
-DESCRIPTION:${(e.subtitle||'') + ' ' + (e.tags||[]).join(', ')}
+DESCRIPTION:${(e.subtitle||'')+' '+(e.tags||[]).join(', ')}
 END:VEVENT
-END:VCALENDAR`;
-    }
-    function csv(e){
-      const row = [
-        e.id, e.type, `"${e.title.replace(/"/g,'""')}"`,
-        `"${(e.subtitle||'').replace(/"/g,'""')}"`,
-        e.date, (e.end||''), (e.tags||[]).join('|')
-      ].join(',');
-      return 'id,type,title,subtitle,date,end,tags\n'+row+'\n';
-    }
+END:VCALENDAR`;}
+    function csv(e){ const row=[e.id,e.type,`"${e.title.replace(/"/g,'""')}"`,`"${(e.subtitle||'').replace(/"/g,'""')}"`,e.date,(e.end||''),(e.tags||[]).join('|')].join(','); return 'id,type,title,subtitle,date,end,tags\n'+row+'\n'; }
 
-    // Item
-    function makeItem(e, index){
-      const side = e.side || (index % 2 ? 'right' : 'left');
-      const item = document.createElement('div');
-      item.className = `item ${side}`; item.dataset.id = e.id;
+    // Item de timeline
+    function makeItem(e,i){
+      const side = e.side || (i%2?'right':'left');
+      const item=document.createElement('div'); item.className=`item ${side}`; item.dataset.id=e.id;
 
-      const dot = document.createElement('button');
-      dot.className = 'dot dot--' + (e.type || 'exp');
-      dot.setAttribute('type','button');
-      dot.title = fmtDate(e.date);
-      dot.dataset.date = e.dateLabel || fmtDate(e.date);
-      dot.setAttribute('aria-expanded','false');
-      dot.setAttribute('aria-controls', `pop-${e.id}`);
+      const dot=document.createElement('button');
+      dot.className='dot dot--'+(e.type||'exp'); dot.type='button'; dot.title=fmtDate(e.date);
+      dot.dataset.date=e.dateLabel||fmtDate(e.date); dot.setAttribute('aria-expanded','false'); dot.setAttribute('aria-controls','pop-'+e.id);
 
-      const bar = document.createElement('div'); bar.className = 'bar';
-      const title = document.createElement('span'); title.className='title';
-      title.textContent = `${e.title}${e.subtitle ? ' — ' + e.subtitle : ''}`;
-      bar.appendChild(title);
+      const bar=document.createElement('div'); bar.className='bar';
+      const title=document.createElement('span'); title.className='title'; title.textContent=`${e.title}${e.subtitle?' — '+e.subtitle:''}`; bar.appendChild(title);
 
-      const pop = document.createElement('section');
-      pop.className='popover'; pop.id=`pop-${e.id}`; pop.setAttribute('role','dialog');
-      pop.dataset.side=side; pop.hidden=true; pop.dataset.open='false';
-      pop.innerHTML = `
+      const pop=document.createElement('section');
+      pop.className='popover'; pop.id='pop-'+e.id; pop.setAttribute('role','dialog'); pop.dataset.side=side; pop.hidden=true; pop.dataset.open='false';
+      pop.innerHTML=`
         <button class="close" aria-label="Cerrar">×</button>
         <h3 id="ttl-${e.id}" tabindex="-1">${e.title}</h3>
-        <time datetime="${e.date}">${fmtRange(e.date, e.end)}</time>
+        <time datetime="${e.date}">${fmtRange(e.date,e.end)}</time>
         <p>${e.body||''}</p>
         <div class="meta">${(e.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
         <div class="actions">
@@ -619,153 +513,155 @@ END:VCALENDAR`;
           <button class="btn" data-csv>CSV</button>
         </div>`;
 
-      if (side==='left'){ item.append(dot, bar, document.createTextNode('')); }
-      else { item.append(document.createTextNode(''), bar, dot); }
+      if(side==='left'){ item.append(dot,bar,document.createTextNode('')); } else { item.append(document.createTextNode(''),bar,dot); }
       item.appendChild(pop);
 
-      function position(){
-        const r = dot.getBoundingClientRect();
-        // medir tamaño real
+      // Posicionamiento en desktop (en móvil usamos bottom-sheet)
+      const position=()=>{
+        if(isMobile()) return;
+        const r=dot.getBoundingClientRect();
         pop.style.visibility='hidden'; pop.style.display='block';
-        const pw = pop.offsetWidth, ph = pop.offsetHeight;
+        const pw=pop.offsetWidth, ph=pop.offsetHeight;
         pop.style.display=''; pop.style.visibility='';
-
-        let top = r.top - 10;
-        top = Math.max(12, Math.min(window.innerHeight - ph - 12, top));
-
+        let top=Math.max(12, Math.min(window.innerHeight - ph - 12, r.top - 10));
         let left;
-        if (side==='left'){
-          left = r.right + 16;
-          if (left + pw > window.innerWidth - 12) left = r.left - pw - 16;
+        if(side==='left'){ left=r.right+16; if(left+pw>window.innerWidth-12) left=r.left-pw-16; }
+        else { left=r.left-pw-16; if(left<12) left=r.right+16; }
+        left=Math.max(12, Math.min(window.innerWidth - pw - 12, left));
+        pop.style.top=`${top}px`; pop.style.left=`${left}px`;
+      };
+
+      const open=()=>{
+        pop.hidden=false;
+        if(isMobile()){ document.documentElement.style.overflow='hidden'; pop.dataset.mobile='true'; scrim.dataset.show='true'; }
+        pop.dataset.open='true';
+        dot.dataset.active=true; dot.setAttribute('aria-expanded','true');
+        if(!isMobile()) position();
+        history.replaceState(null,'','#'+e.id);
+        localStorage.setItem('timeline:last', e.id);
+        requestAnimationFrame(()=> pop.querySelector('h3')?.focus());
+      };
+      const close=()=>{
+        dot.dataset.active=false; dot.setAttribute('aria-expanded','false');
+        pop.dataset.open='false';
+        if(isMobile()){
+          setTimeout(()=>{ pop.hidden=true; },180);
+          scrim.dataset.show='false';
+          document.documentElement.style.overflow='';
         } else {
-          left = r.left - pw - 16;
-          if (left < 12) left = r.right + 16;
+          pop.hidden=true;
         }
-        left = Math.max(12, Math.min(window.innerWidth - pw - 12, left));
+      };
 
-        pop.style.top = `${top}px`;
-        pop.style.left = `${left}px`;
-      }
-      function close(){ pop.dataset.open='false'; pop.hidden=true; dot.dataset.active=false; dot.setAttribute('aria-expanded','false'); }
-      function open(){ pop.hidden=false; pop.dataset.open='true'; position(); dot.dataset.active=true; dot.setAttribute('aria-expanded','true'); history.replaceState(null,'', '#'+e.id); localStorage.setItem('timeline:last', e.id); pop.querySelector('h3')?.focus(); }
+      dot.addEventListener('click',(ev)=>{ ev.preventDefault(); ev.stopPropagation(); const openNow=pop.dataset.open==='true'; closeAll(); if(!openNow) open(); });
+      pop.querySelector('.close')?.addEventListener('click',(ev)=>{ ev.preventDefault(); close(); });
 
-      dot.addEventListener('click',(ev)=>{ ev.preventDefault(); ev.stopPropagation(); const openNow = pop.dataset.open==='true'; closeAll(); if(!openNow) open(); });
-      pop.querySelector('.close')?.addEventListener('click', (ev)=>{ ev.preventDefault(); close(); });
-      pop.querySelector('[data-copy]')?.addEventListener('click', async ()=>{
-        const url = location.origin + location.pathname + '#' + e.id;
-        try { await navigator.clipboard.writeText(url); toast('Enlace copiado'); }
-        catch { toast('No se pudo copiar','warn'); }
-      });
-      pop.querySelector('[data-ics]')?.addEventListener('click', ()=> dl(`${e.id}.ics`, ics(e), 'text/calendar'));
-      pop.querySelector('[data-csv]')?.addEventListener('click', ()=> dl(`${e.id}.csv`, csv(e), 'text/csv'));
+      // Acciones popover
+      pop.querySelector('[data-copy]')?.addEventListener('click',async()=>{ const url=location.origin+location.pathname+'#'+e.id; try{ await navigator.clipboard.writeText(url); toast('Enlace copiado'); }catch{ toast('No se pudo copiar','warn'); }});
+      pop.querySelector('[data-ics]')?.addEventListener('click',()=> dl(`${e.id}.ics`, ics(e), 'text/calendar'));
+      pop.querySelector('[data-csv]')?.addEventListener('click',()=> dl(`${e.id}.csv`, csv(e), 'text/csv'));
 
       return { item, position, open, dot };
     }
 
-    let controls = [];
+    let controls=[];
     function render(){
-      const term = (q.value||'').trim().toLowerCase();
-      const tags = [...activeTags];
+      const term=(q.value||'').trim().toLowerCase();
+      const tags=[...activeTags];
 
-      grid.innerHTML = '';
-      controls = [];
-
+      grid.innerHTML=''; controls=[];
       const filtered = data.filter(e=>{
-        const hay = (e.title + ' ' + (e.subtitle||'') + ' ' + (e.tags||[]).join(' ') + ' ' + e.date).toLowerCase();
-        const okTerm = !term || hay.includes(term);
-        const okTags = !tags.length || tags.every(t=>(e.tags||[]).includes(t));
-        const okType = activeTypes.has((e.type||'exp'));
+        const hay=(e.title+' '+(e.subtitle||'')+' '+(e.tags||[]).join(' ')+' '+e.date).toLowerCase();
+        const okTerm=!term || hay.includes(term);
+        const okTags=!tags.length || tags.every(t=>(e.tags||[]).includes(t));
+        const okType=activeTypes.has((e.type||'exp'));
         return okTerm && okTags && okType;
       }).sort((a,b)=> new Date(a.date) - new Date(b.date));
 
-      filtered.forEach((e,i)=>{
-        const { item, position, open, dot } = makeItem(e,i);
-        grid.appendChild(item);
-        controls.push({ id:e.id, el:item, position, open, dot });
-        obs.observe(item);
-      });
+      filtered.forEach((e,i)=>{ const {item,position,open,dot}=makeItem(e,i); grid.appendChild(item); controls.push({id:e.id,el:item,position,open,dot}); obs.observe(item); });
 
-      result.textContent = `${filtered.length} evento(s) mostrados`;
+      result.textContent=`${filtered.length} evento(s) mostrados`;
 
-      const hash = location.hash.replace('#','');
-      const ctrl = controls.find(c => c.id===hash);
-      if (ctrl) setTimeout(()=>{ ctrl.open(); }, 60);
+      // Abrir por hash
+      const hash=location.hash.replace('#',''); const ctrl=controls.find(c=>c.id===hash);
+      if(ctrl) setTimeout(()=>{ ctrl.open(); },60);
     }
 
     function closeAll(){
-      $$('.popover[data-open="true"]').forEach(p=>{ p.dataset.open='false'; p.hidden=true; });
+      $$('.popover[data-open="true"]').forEach(p=>{ p.dataset.open='false'; if(isMobile()){ setTimeout(()=>p.hidden=true,180); } else { p.hidden=true; }});
       $$('.dot').forEach(d=> d.dataset.active=false);
+      scrim.dataset.show='false'; document.documentElement.style.overflow='';
     }
-    document.addEventListener('click', (e)=>{ if(!e.target.closest('.popover') && !e.target.closest('.dot')) closeAll(); });
-    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeAll(); });
-    window.addEventListener('resize', ()=> controls.forEach(c=>{ const p=c.el.querySelector('.popover'); if(p && p.dataset.open==='true') c.position(); }));
 
-    // Teclado: navegar entre eventos
-    document.addEventListener('keydown', (e)=>{
-      const dots = controls.map(c=>c.dot);
-      if(!dots.length) return;
-      const i = dots.findIndex(d=> d.dataset.active==='true') >= 0 ? dots.findIndex(d=> d.dataset.active==='true') : Math.max(0, dots.indexOf(document.activeElement));
-      if(e.key === 'ArrowDown' || e.key === 'ArrowRight'){
-        e.preventDefault();
-        const next = dots[(i+1+dots.length)%dots.length]; next.focus(); next.click();
-      }
-      if(e.key === 'ArrowUp' || e.key === 'ArrowLeft'){
-        e.preventDefault();
-        const prev = dots[(i-1+dots.length)%dots.length]; prev.focus(); prev.click();
-      }
-      if(e.key === 'Enter' && document.activeElement?.classList.contains('dot')){
-        e.preventDefault(); document.activeElement.click();
-      }
+    // Cierre por click fuera / ESC
+    document.addEventListener('click',(e)=>{ if(!e.target.closest('.popover') && !e.target.closest('.dot')) closeAll(); });
+    document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closeAll(); });
+
+    // Reposicionar en resize (solo desktop)
+    window.addEventListener('resize',()=> controls.forEach(c=>{ const p=c.el.querySelector('.popover'); if(p && p.dataset.open==='true' && !isMobile()) c.position(); }));
+
+    // Teclado
+    document.addEventListener('keydown',(e)=>{
+      const dots=controls.map(c=>c.dot); if(!dots.length) return;
+      const activeIndex=dots.findIndex(d=> d.dataset.active==='true');
+      const i = activeIndex>=0 ? activeIndex : Math.max(0, dots.indexOf(document.activeElement));
+      if(e.key==='ArrowDown' || e.key==='ArrowRight'){ e.preventDefault(); const next=dots[(i+1+dots.length)%dots.length]; next.focus(); next.click(); }
+      if(e.key==='ArrowUp' || e.key==='ArrowLeft'){ e.preventDefault(); const prev=dots[(i-1+dots.length)%dots.length]; prev.focus(); prev.click(); }
+      if(e.key==='Enter' && document.activeElement?.classList.contains('dot')){ e.preventDefault(); document.activeElement.click(); }
     });
 
     // Reveal
-    const obs = new IntersectionObserver((entries)=> entries.forEach(en=>{ if(en.isIntersecting) en.target.classList.add('in'); }), {threshold:.15});
+    const obs=new IntersectionObserver((entries)=> entries.forEach(en=>{ if(en.isIntersecting) en.target.classList.add('in'); }), {threshold:.15});
 
-    // Countdown (si hay publishAt futuro)
-    const next = data
-      .filter(x=>x.publishAt)
-      .map(x=>({when:new Date(x.publishAt), title:x.dropTitle||x.title}))
-      .filter(x=>x.when>new Date())
-      .sort((a,b)=>a.when-b.when)[0];
-    if (next){
-      nextdrop.hidden = false;
-      dropTitle.textContent = `— ${next.title}`;
-      const tick = ()=>{
-        const diff = next.when - new Date();
-        if (diff <= 0){ countEl.textContent = '¡Es hoy!'; return; }
-        const d = Math.floor(diff/86400000);
-        const h = String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');
-        const m = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
-        const s = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
-        countEl.textContent = `${d}d ${h}h ${m}m ${s}s`;
-      };
-      tick(); setInterval(tick, 1000);
+    // Countdown
+    const next = data.filter(x=>x.publishAt).map(x=>({when:new Date(x.publishAt), title:x.dropTitle||x.title})).filter(x=>x.when>new Date()).sort((a,b)=>a.when-b.when)[0];
+    if(next){
+      nextdrop.hidden=false; dropTitle.textContent=`— ${next.title}`;
+      const tick=()=>{ const diff=next.when - new Date(); if(diff<=0){ countEl.textContent='¡Es hoy!'; return; }
+        const d=Math.floor(diff/86400000), h=String(Math.floor((diff%86400000)/3600000)).padStart(2,'0'),
+              m=String(Math.floor((diff%3600000)/60000)).padStart(2,'0'), s=String(Math.floor((diff%60000)/1000)).padStart(2,'0');
+        countEl.textContent=`${d}d ${h}h ${m}m ${s}s`; };
+      tick(); setInterval(tick,1000);
     }
 
-    // Toast mini
-    let toastEl; function toast(msg, mode){
-      if(!toastEl){
-        toastEl = document.createElement('div');
-        toastEl.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#10161c;border:1px solid #334155;border-radius:12px;padding:10px 14px;color:#e5e7eb;box-shadow:var(--shadow);z-index:9999;';
-        document.body.appendChild(toastEl);
-      }
-      toastEl.textContent = msg;
-      toastEl.style.borderColor = mode==='warn' ? '#f59e0b' : '#334155';
-      toastEl.style.display = 'block';
-      clearTimeout(toastEl._t);
-      toastEl._t = setTimeout(()=> toastEl.style.display='none', 1400);
-    }
+    // Toast
+    let toastEl; function toast(msg,mode){ if(!toastEl){ toastEl=document.createElement('div'); toastEl.className='toast'; document.body.appendChild(toastEl); }
+      toastEl.textContent=msg; toastEl.dataset.mode=mode||'ok'; toastEl.style.display='block'; clearTimeout(toastEl._t); toastEl._t=setTimeout(()=>toastEl.style.display='none',1400); }
 
     // Restaurar último abierto si no hay hash
-    const last = localStorage.getItem('timeline:last');
-    if (last && !location.hash) history.replaceState(null,'', '#'+last);
+    const last=localStorage.getItem('timeline:last'); if(last && !location.hash) history.replaceState(null,'','#'+last);
 
-    q.addEventListener('input', render);
-    renderChips();
-    renderTypeToggles();
-    render();
+    q.addEventListener('input',render);
+    renderChips(); renderTypeToggles(); render();
   })();
+
+  // ========================= TRABAJAR LUEGO: Analizador (cuando haya backend) =========================
+  /*
+  function guessType(input, forced){ if(forced && forced!=='auto') return forced; const v=(input||'').trim(); if(!v) return 'unknown';
+    if(v.startsWith('0x') && v.length===42) return 'eth';
+    if(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(v)) return 'sol';
+    if(v.includes('.')) return 'domain';
+    return 'unknown';
+  }
+  function clamp(n,a,b){ return Math.max(a, Math.min(b, n)); }
+  function localHeuristics(input,type){
+    const s=(input||'').toLowerCase(); let domainScore=null, contractScore=null, reasons=[];
+    if(type==='domain'){ domainScore=100; if(/(airdrop|free|pump|moon|elon|swap|cash|staking|giveaway)/.test(s)){ domainScore-=25; reasons.push('palabras sospechosas'); }
+      if(s.split('.').pop().length>3){ domainScore-=10; reasons.push('TLD raro'); }
+      if(s.length>18){ domainScore-=5; reasons.push('dominio largo'); } }
+    if(type==='eth'){ contractScore=80; if(/dead|beef|cafe/.test(s)){ contractScore-=5; reasons.push('patrón curioso en address'); } }
+    if(type==='sol'){ contractScore=82; if(/^111/.test(s)){ contractScore-=7; reasons.push('pattern base58'); } }
+    const ds=domainScore??80, cs=contractScore??80, risk=clamp(Math.round(100-(0.55*ds+0.45*cs)),0,100);
+    return {domainScore:domainScore??null, contractScore:contractScore??null, riskScore:risk, reasons};
+  }
+  async function callApi(input,type){
+    if(!CONFIG.apiBaseUrl) return null;
+    try{ const res = await fetch(`${CONFIG.apiBaseUrl.replace(/\/$/, '')}/analyze`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({query:input,type})});
+         if(!res.ok) throw new Error('API error'); return await res.json();
+    }catch(e){ return null; }
+  }
+  */
   </script>
 </body>
 </html>
-    
+        
