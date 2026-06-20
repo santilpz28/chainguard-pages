@@ -256,37 +256,69 @@
           </div>
         </a>
 
-        <a href="writeups/graph-protocol-audit.html" class="writeup-card">
+        <a href="https://github.com/santilpz28/foundry-fundme-f25" class="writeup-card">
           <div class="writeup-cover" style="background:linear-gradient(135deg,#0e141d,#0a0f17)">
-            <div class="writeup-cover-icon" style="color:var(--green);text-shadow:0 0 30px rgba(34,197,94,0.4);">
-              <small>Mining · Q3 2026</small>
-              ?
+            <div class="writeup-cover-icon" style="color:var(--accent);text-shadow:0 0 30px rgba(34,211,238,0.4);">
+              <small>Foundry · 2025</small>
+              90<small style="color:var(--text-dim);font-size:.875rem;font-weight:500;">%+</small>
             </div>
           </div>
           <div class="writeup-body">
             <div class="writeup-meta">
-              <span class="chip chip-green">EVM</span>
+              <span class="chip chip-violet">EVM</span>
               <span class="dot">·</span>
-              <span>Aave v3 / Morpho Blue</span>
+              <span>Solidity</span>
               <span class="dot">·</span>
-              <span>in queue</span>
+              <span>DeFi patterns</span>
             </div>
-            <h3 class="writeup-title">Next audit — DeFi blue chip</h3>
-            <p class="writeup-desc">Currently scoping the next public audit. Aave v3 or Morpho Blue are top candidates. Same two-axis methodology, same Pashov pipeline.</p>
+            <h3 class="writeup-title">Foundry Labs — Foundry mastery labs</h3>
+            <p class="writeup-desc">Hands-on Foundry labs covering smart-contract security: msg.sender vs tx.origin, custom errors, CEI, access control, UUPS proxies. 90%+ coverage on DeFi patterns (DEX router, staking, escrow). Property-based fuzzing with Echidna.</p>
             <div class="writeup-tags">
               <span class="chip">Foundry</span>
-              <span class="chip">Halmos</span>
-              <span class="chip">Pashov</span>
+              <span class="chip">Echidna</span>
+              <span class="chip">OpenZeppelin</span>
             </div>
             <div class="writeup-footer">
               <div class="writeup-score">
-                <span class="label">ETA</span>
-                <span>Q3 2026</span>
+                <span class="label">Coverage</span>
+                <span>90%+</span>
               </div>
-              <div class="writeup-cta">Request yours <span>→</span></div>
+              <div class="writeup-cta">View repo <span>→</span></div>
             </div>
           </div>
         </a>
+        <a href="https://github.com/santilpz28/orbital-shield" class="writeup-card">
+          <div class="writeup-cover" style="background:linear-gradient(135deg,#0e141d,#0a0f17)">
+            <div class="writeup-cover-icon" style="color:var(--pink);text-shadow:0 0 30px rgba(236,72,153,0.4);">
+              <small>IoT · Sat-Comms</small>
+              v0.1
+            </div>
+          </div>
+          <div class="writeup-body">
+            <div class="writeup-meta">
+              <span class="chip chip-pink">IoT</span>
+              <span class="dot">·</span>
+              <span>MQTT/Mosquitto</span>
+              <span class="dot">·</span>
+              <span>TLS hardening</span>
+            </div>
+            <h3 class="writeup-title">Orbital Shield — security framework for satellite IoT</h3>
+            <p class="writeup-desc">Experimental security framework for satellite IoT comms. Hardened MQTT broker (Mosquitto) + Python telemetry simulator. TLS-by-default, broker ACLs, topic isolation, replay-attack resistance — patterns reusable for any constrained-device fleet.</p>
+            <div class="writeup-tags">
+              <span class="chip">MQTT</span>
+              <span class="chip">TLS</span>
+              <span class="chip">Python</span>
+            </div>
+            <div class="writeup-footer">
+              <div class="writeup-score">
+                <span class="label">Status</span>
+                <span>v0.1</span>
+              </div>
+              <div class="writeup-cta">View repo <span>→</span></div>
+            </div>
+          </div>
+        </a>
+        
       </div>
     </section>
 
@@ -486,7 +518,7 @@
 
           <div class="who-paragraphs">
             <p>
-              <span class="hl-violet">Data analyst by training</span>, security researcher by trade. I started in operational data (SAP, Power BI, automation) at General Mills, then moved sideways into offensive security because the questions got more interesting: <em>where is the real risk, and how do you prove it before someone loses money?</em>
+              <span class="hl-violet">Data analyst by training</span>, security researcher by trade. <span class="hl-cyan">Currently at General Mills</span> (multinational F&B) — Python pipelines, anomaly detection, security automation. By night, offensive security and smart-contract audits, because the questions got more interesting: <em>where is the real risk, and how do you prove it before someone loses money?</em>
             </p>
             <p>
               Today I audit smart contracts, hunt bugs on Immunefi, and build tooling that turns public on-chain data into actionable risk signals. I work in Spanish and English, ship in Foundry &amp; Slither, and write case studies that read like forensic reports — evidence first, opinions second.
@@ -590,17 +622,7 @@
         <div id="tl-grid" class="tl-stops" aria-label="Timeline"></div>
       </div>
 
-      <script type="application/json" id="timeline-data">[
-        {"id":"wal-ops","type":"exp","title":"Ops @ Wild About Lapland (FI)","subtitle":"Linux on-prem + operational improvement","date":"2022-01-10","end":"2023-01-10","dateLabel":"Jan '22","tags":["Linux","Ops","On-prem"],"side":"left","body":"<ul style='list-style:disc;padding-left:1.25rem'><li>Lightweight Linux administration and operations support</li><li>Process optimization using data</li></ul>"},
-        {"id":"microsoft-python-2023","type":"cert","title":"Microsoft Python Certification","subtitle":"Python programming","date":"2023-04-01","dateLabel":"Apr '23","tags":["Python","Dev"],"side":"right","body":"<p>Foundations + scripting for automation and analysis. First cert that opened the door to data work.</p>"},
-        {"id":"google-da-2023","type":"cert","title":"Google Data Analytics Professional Certificate","subtitle":"Data analysis","date":"2023-06-01","dateLabel":"Jun '23","tags":["Data","BI","Analytics"],"side":"left","body":"<p>Data pipeline, basic SQL, visualization and metrics.</p>"},
-        {"id":"rhcsa-2024","type":"cert","title":"RHCSA","subtitle":"Red Hat Certified System Administrator","date":"2024-05-01","dateLabel":"May '24","tags":["Linux","SysAdmin"],"side":"right","body":"<p>User, service, network and security management on RHEL.</p>"},
-        {"id":"securityplus-2024","type":"cert","title":"CompTIA Security+","subtitle":"Generalist security","date":"2024-09-01","dateLabel":"Sep '24","tags":["Security","Blue/Red"],"side":"left","body":"<p>Foundations of security, networks, risk management and compliance.</p>"},
-        {"id":"gm-data-analyst","type":"exp","title":"Data Analyst / Controller @ General Mills","subtitle":"SAP → Power BI automations","date":"2024-11-01","end":"present","dateLabel":"Nov '24","tags":["Data","BI","SAP","Power BI","VBA"],"side":"right","body":"<ul style='list-style:disc;padding-left:1.25rem'><li>FS10N + PowerQuery + VBA → ~6h/month saved</li><li>Cost control and periodic reporting</li></ul>"},
-        {"id":"ewpt-ongoing","type":"cert","title":"eWPT (in progress)","subtitle":"Web Application Penetration Testing","date":"2025-01-15","end":"present","dateLabel":"Jan '25","tags":["Pentest","Web"],"side":"left","body":"<p>SQLi/XSS, auth, logic and app hardening labs. 80+ PortSwigger labs done; targeting voucher 30 Jul 2026.</p>"},
-        {"id":"ejpt-2025","type":"cert","title":"eJPT","subtitle":"eLearnSecurity","date":"2025-10-01","dateLabel":"Oct '25","tags":["Pentest","Networks","Web"],"side":"right","body":"<p>Enumeration/networks, web basics, initial exploitation and reporting. 100-question practical exam passed in 6h.</p>"},
-        {"id":"post-solana-audit-1","type":"post","title":"Post: Secure auditing on Solana","subtitle":"Checklist + 4 PoCs (SPL, CPIs, signers)","date":"2025-11-20","dateLabel":"Nov '25","tags":["Web3","Solana","Writeup"],"side":"right","body":"<p>How to audit Solana programs in 2026: SPL token pitfalls, CPI reentrancy, signer authorization, account ownership. 4 reproducible PoCs and a 30-step pre-deploy checklist.</p>","publishAt":"2025-12-20T09:00:00Z","dropTitle":"Secure auditing on Solana"}
-      ]</script>
+      <script type="application/json" id="timeline-data">[{"id":"wal-ops","type":"exp","title":"Ops @ Wild About Lapland (FI)","subtitle":"Linux on-prem + operational improvement","date":"2022-01-10","end":"2023-01-10","dateLabel":"Jan '22","tags":["Linux","Ops","On-prem"],"side":"left","body":"<ul style='list-style:disc;padding-left:1.25rem'><li>Lightweight Linux administration and operations support</li><li>Process optimization using data</li></ul>"},{"id":"microsoft-python-2023","type":"cert","title":"Microsoft Python Certification","subtitle":"Python programming","date":"2023-04-01","dateLabel":"Apr '23","tags":["Python","Dev"],"side":"right","body":"<p>Foundations + scripting for automation and analysis. First cert that opened the door to data work.</p>"},{"id":"google-da-2023","type":"cert","title":"Google Data Analytics Professional Certificate","subtitle":"Data analysis","date":"2023-06-01","dateLabel":"Jun '23","tags":["Data","BI","Analytics"],"side":"left","body":"<p>Data pipeline, basic SQL, visualization and metrics.</p>"},{"id":"rhcsa-2024","type":"cert","title":"RHCSA","subtitle":"Red Hat Certified System Administrator","date":"2024-05-01","dateLabel":"May '24","tags":["Linux","SysAdmin"],"side":"right","body":"<p>User, service, network and security management on RHEL.</p>"},{"id":"securityplus-2024","type":"cert","title":"CompTIA Security+","subtitle":"Generalist security","date":"2024-09-01","dateLabel":"Sep '24","tags":["Security","Blue/Red"],"side":"left","body":"<p>Foundations of security, networks, risk management and compliance.</p>"},{"id":"gm-data-analyst","type":"exp","title":"Data Analyst / Controller @ General Mills","subtitle":"SAP \u2192 Power BI automations","date":"2024-11-01","end":"present","dateLabel":"Nov '24","tags":["Data","BI","SAP","Power BI","VBA"],"side":"right","body":"<ul style='list-style:disc;padding-left:1.25rem'><li>FS10N + PowerQuery + VBA \u2192 ~6h/month saved</li><li>Cost control and periodic reporting</li></ul>"},{"id":"ewpt-ongoing","type":"cert","title":"eWPT (in progress)","subtitle":"Web Application Penetration Testing","date":"2025-01-15","end":"present","dateLabel":"Jan '25","tags":["Pentest","Web"],"side":"left","body":"<p>SQLi/XSS, auth, logic and app hardening labs. 80+ PortSwigger labs done; targeting voucher 30 Jul 2026.</p>"},{"id":"ejpt-2025","type":"cert","title":"eJPT","subtitle":"eLearnSecurity","date":"2025-10-01","dateLabel":"Oct '25","tags":["Pentest","Networks","Web"],"side":"right","body":"<p>Enumeration/networks, web basics, initial exploitation and reporting. 100-question practical exam passed in 6h.</p>"},{"id":"post-solana-audit-1","type":"post","title":"Post: Secure auditing on Solana","subtitle":"Checklist + 4 PoCs (SPL, CPIs, signers)","date":"2025-11-20","dateLabel":"Nov '25","tags":["Web3","Solana","Writeup"],"side":"right","body":"<p>How to audit Solana programs in 2026: SPL token pitfalls, CPI reentrancy, signer authorization, account ownership. 4 reproducible PoCs and a 30-step pre-deploy checklist.</p>","publishAt":"2025-12-20T09:00:00Z","dropTitle":"Secure auditing on Solana"},{"id":"master-blockchain-2026","type":"milestone","title":"Master in Blockchain Development","subtitle":"Solidity \u00b7 Foundry \u00b7 OpenZeppelin","date":"2026-04-01","end":"2026-09-01","dateLabel":"Apr '26","tags":["Solidity","Foundry","Web3"],"side":"left","body":"<p>Full-stack smart-contract dev: Solidity advanced patterns, Foundry tooling, OpenZeppelin, security audits, DeFi architecture. Final capstone under review.</p>"}]</script>
     </section>
 
     <!-- ═══════ CONTACT ═══════ -->
