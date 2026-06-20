@@ -1,14 +1,14 @@
 <div align="center">
 
-# 🌐 santilpz28.github.io — Personal Portfolio
+# 🛡️ santilpz28.github.io/chainguard-pages
 
-**The marketing layer for the ChainGuard Cortex platform.**
+**Santiago López · Chain-Cortex — Web3 Security & Smart Contract Auditing**
 
 [![Live](https://img.shields.io/badge/Live-santilpz28.github.io%2Fchainguard--pages-blue?style=for-the-badge&logo=google-chrome&logoColor=white)](https://santilpz28.github.io/chainguard-pages/)
-[![Built with](https://img.shields.io/badge/Built%20with-HTML%2FTailwind-orange?style=for-the-badge)](https://tailwindcss.com)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![Methodology](https://img.shields.io/badge/Methodology-Pashov%20%2B%20chain--cortex--audit-22d3ee?style=for-the-badge)](https://github.com/santilpz28)
+[![Available](https://img.shields.io/badge/Status-Available%20Q3%202026-22c55e?style=for-the-badge)](mailto:santi.lpz28@gmail.com)
 
-**Cybersecurity · Web3 Security · Smart Contract Auditing · Linux**
+**Cybersecurity · Web3 Security · Smart Contract Auditing · Pashov Methodology**
 
 </div>
 
@@ -16,50 +16,62 @@
 
 ## 🎯 What this is
 
-A single-page portfolio for **Santiago López Castaño**, a cybersecurity analyst and Web3 security researcher. It's the **front door** for recruiters and clients — it links to:
+The marketing layer for **Chain-Cortex** — a Web3 security studio by **Santiago López Castaño**. Single-page portfolio for independent smart-contract auditing and security consulting. Built as a static site, deployed via GitHub Pages.
 
-- **ChainGuard.ai** (the production platform)
-- **GitHub** repositories
-- **LinkedIn** profile
-- **CVE-style project write-ups**
-
-The page is **statically generated** (no build step) — pure HTML + Tailwind CDN + vanilla JS. Deploys to GitHub Pages in 30 seconds.
+**Recent work**: independent two-axis security audit of [The Graph Protocol](writeups/graph-protocol-audit.html) — score **8.2 / 10**, 0 critical, 10 real findings across 1,606 raw Slither reports.
 
 ---
 
-## ✨ Sections
+## ✨ Design (v3 — 2026-06-20)
 
-1. **Hero** — Name, role, tagline, primary CTA (chain guard demo)
-2. **Writeups & Auditorías** — Public case studies of security work (The Graph Protocol audit, score 8.2/10)
-3. **About** — 3-paragraph bio (Cybersecurity + Web3 + Master Blockchain)
-4. **Featured Projects** — Cards for ChainGuard, Solidity Labs, OSINT, IoT
-5. **Skills Matrix** — 6 categories, each with specific tools
-6. **Certifications Timeline** — RHCSA, eJPT, Microsoft, eWPT in progress, OSCP target
-7. **Contact** — Email, LinkedIn, GitHub, phone
-
-## 📝 Published writeups
-
-- **[The Graph Protocol — two-axis security audit (8.2/10)](writeups/graph-protocol-audit.html)** (2026-06-20) — Independent audit of a $1B+ TVL decentralized indexing protocol. Source code + mainnet bytecode. 0 critical, 10 findings, 99.4% Slither FP reduction. Methodology: Pashov + chain-cortex-audit skill.
+- **Dark-first** with deep navy + cyan / violet gradients
+- **Bento-grid layout** with bouncy hover states
+- **Hero terminal** that prints the latest audit stats in real time
+- **Inline SVG favicon** (no external assets)
+- **Glassmorphism cards** with subtle borders and shadows
+- **Mobile-first** responsive, hamburger nav under 900 px
+- **Sticky header** with active-section indicator
+- **Scroll-reveal animations** via IntersectionObserver
+- **Full keyboard accessibility** (skip link, focus states, Escape to close popovers)
+- **Theme toggle** (dark / light) persisted in localStorage
+- **Print-friendly** and **reduced-motion** aware
 
 ---
 
-## 🚀 Local development
+## 📁 Structure
+
+```
+.
+├── index.html              # Homepage — 665 lines, full portfolio
+├── style.css               # Design system — 1,400+ lines, dark + light themes
+├── app.js                  # Theme, mobile nav, scroll reveal, timeline logic
+├── cv_photo.png            # Profile photo
+├── writeups/
+│   └── graph-protocol-audit.html   # Sanitized case study
+└── README.md               # This file
+```
+
+**No build step.** Pure HTML + CSS + vanilla JS. Tailwind CDN-style approach but with hand-written CSS for full control over the dark theme.
+
+---
+
+## 🚀 Local dev
 
 ```bash
 git clone https://github.com/santilpz28/chainguard-pages.git
 cd chainguard-pages
 python3 -m http.server 8000
-# Open http://localhost:8000
+# open http://localhost:8000
 ```
 
-No build step. No npm. No node_modules. Just edit `index.html` and refresh.
+Or just `open index.html` — works offline (only external dep is Google Fonts).
 
 ## 📦 Deploy
 
 ```bash
-git add -A && git commit -m "update portfolio"
+git add -A && git commit -m "update"
 git push origin main
-# GitHub Pages auto-deploys in ~30s
+# GitHub Pages auto-deploys in ~30-60s
 ```
 
 Settings → Pages → Source: `main` branch, root folder.
@@ -68,18 +80,59 @@ Settings → Pages → Source: `main` branch, root folder.
 
 ## 🎨 Design system
 
-- **Font:** Inter (Google Fonts)
-- **Colors:** Slate 900 base, primary `#FF5722` (orange), accent cyan for security
-- **Layout:** Mobile-first, max-width 1200px, generous whitespace
-- **Animations:** Subtle CSS transitions on hover, no JS animations
-- **Icons:** Lucide (lightweight, no font)
+### Tokens (CSS variables)
 
-## 🛠️ Tech
+```css
+--bg: #06080c;          /* Deep navy */
+--accent: #22d3ee;      /* Cyan */
+--violet: #a78bfa;      /* Secondary */
+--green: #22c55e;       /* Success */
+--amber: #fbbf24;       /* Warning */
+--red: #ef4444;         /* Error */
+--pink: #f472b6;        /* Accent */
+```
+
+### Typography
+
+- **Inter** (300-900) — body, UI, hero
+- **JetBrains Mono** (400-600) — code, numbers, terminal, chips
+
+### Components
+
+- `.bento` / `.bento-item` — 6-col asymmetric grid
+- `.writeup-card` — case study with cover + score
+- `.tier` — pricing tier with optional `.featured`
+- `.terminal` — fake CLI with red/amber/green dots
+- `.stat-card` — KPI display with gradient text
+- `.chip` / `.chip-cyan` / `.chip-violet` — tag pills
+- `.glass` — frosted surface
+- `.card` — generic container
+
+---
+
+## 🛠️ Stack
 
 - **HTML5** semantic
-- **Tailwind CSS v3** (CDN — no build step)
-- **Vanilla JS** for the wallet connect and demo interactions
-- **No frameworks** — keeps the page <100KB total
+- **CSS3** — design tokens, custom properties, Grid, Flexbox
+- **Vanilla JS** — no frameworks, no bundler
+- **IntersectionObserver** for scroll effects
+- **localStorage** for theme persistence
+- **Google Fonts** (Inter, JetBrains Mono)
+- **No external JS deps** — works offline if fonts are cached
+
+---
+
+## 📝 Published writeups
+
+- **[The Graph Protocol — two-axis security audit (8.2/10)](writeups/graph-protocol-audit.html)** (2026-06-20) — Independent audit of a $1B+ TVL decentralized indexing protocol. Source + mainnet bytecode. 0 critical, 10 real findings, 99.4% Slither FP reduction. Methodology: Pashov + chain-cortex-audit skill.
+
+---
+
+## 🛡️ Security note
+
+The hero terminal content references real audit metrics but does not expose any sensitive details. The full technical report is gated behind direct request to the protocol team under responsible-disclosure norms — see the case study page for details.
+
+---
 
 ## 📜 License
 
