@@ -449,71 +449,112 @@
       </div>
     </section>
 
-    <!-- ═══════ PROFILE ═══════ -->
+    <!-- ═══════ PROFILE / WHO I AM ═══════ -->
     <section id="profile" class="section-pad container">
       <div class="section-header">
         <div class="eyebrow">About</div>
         <h2>Who I am</h2>
+        <p>Three things that make me, me — and how they show up in the work.</p>
       </div>
 
-      <div class="bento">
-        <div class="bento-item wide">
-          <div class="profile-card">
-            <div class="profile-photo">
-              <img src="./cv_photo.png" alt="Santi — portrait" loading="lazy">
-            </div>
-            <div>
-              <h3 class="profile-name">Santiago López Castaño</h3>
-              <p class="profile-role">Web3 Security · Smart-Contract Auditor · Pentester</p>
-              <p class="text-dim" style="font-size:.9375rem;line-height:1.65;margin-bottom:1rem;">
-                Data analyst by training, security researcher by trade. I mix <strong>data analysis</strong>, <strong>OSINT</strong>, and <strong>AppSec</strong> to detect real risk in Web3 ecosystems (Solana &amp; EVM). Cero humo: evidence, PoC, clear mitigation.
-              </p>
-              <div class="profile-links">
-                <a href="https://github.com/santilpz28" target="_blank" rel="noreferrer" class="chip">@santilpz28</a>
-                <a href="https://www.linkedin.com/in/santiagolopez-cyber/" target="_blank" rel="noreferrer" class="chip">santiagolopez-cyber</a>
-                <a href="mailto:santi.lpz28@gmail.com" class="chip">santi.lpz28@gmail.com</a>
-              </div>
-            </div>
+      <!-- Hero narrative: name, role, mission -->
+      <div class="who-hero">
+        <div class="who-portrait">
+          <div class="who-portrait-frame">
+            <img src="./cv_photo.png" alt="Santiago López Castaño" loading="lazy">
           </div>
+          <div class="who-portrait-tag mono">CET · REMOTE · OPEN TO RELOCATION</div>
         </div>
 
-        <div class="bento-item">
-          <div class="bento-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <div class="who-narrative">
+          <div class="who-name-block">
+            <h3 class="who-name">Santiago López Castaño</h3>
+            <div class="who-role">Web3 Security · Smart-Contract Auditor · Pentester</div>
+            <div class="who-tagline">Founder of <span class="hl-cyan">Chain-Cortex</span> — building ChainGuard (retail Web3 risk-scoring) and a senior audit practice for EVM &amp; Solana protocols.</div>
           </div>
-          <h3 class="bento-title">Certifications</h3>
-          <ul class="text-dim" style="font-size:.875rem;line-height:1.8;padding-left:1.25rem;list-style:disc;">
-            <li>eJPT (eLearnSecurity, 2025)</li>
-            <li>RHCSA (Red Hat, 2024)</li>
-            <li>Microsoft Python (2023)</li>
-            <li>Google DA Pro (2023)</li>
-            <li>Master in Blockchain Dev (2026)</li>
-            <li>eWPT — in progress</li>
-            <li>OSCP — target late 2026</li>
-          </ul>
-        </div>
 
-        <div class="bento-item">
-          <div class="bento-icon violet">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <div class="who-paragraphs">
+            <p>
+              <span class="hl-violet">Data analyst by training</span>, security researcher by trade. I started in operational data (SAP, Power BI, automation) at General Mills, then moved sideways into offensive security because the questions got more interesting: <em>where is the real risk, and how do you prove it before someone loses money?</em>
+            </p>
+            <p>
+              Today I audit smart contracts, hunt bugs on Immunefi, and build tooling that turns public on-chain data into actionable risk signals. I work in Spanish and English, ship in Foundry &amp; Slither, and write case studies that read like forensic reports — evidence first, opinions second.
+            </p>
+            <p>
+              <span class="hl-cyan">Off-hours</span> I'm a hybrid athlete (Hyrox, strength, sauna) and an obsessive about recovery — because the work is a long game and the body is the runtime. <span class="dim">Sundays are non-negotiable.</span>
+            </p>
           </div>
-          <h3 class="bento-title">Languages</h3>
-          <ul class="text-dim" style="font-size:.875rem;line-height:1.8;padding-left:1.25rem;list-style:disc;">
-            <li><strong>Spanish</strong> — native</li>
-            <li><strong>English</strong> — fluent (C1)</li>
-            <li><strong>Russian</strong> — intermediate (B1)</li>
-            <li>Remote (CET) · open to relocation</li>
-          </ul>
+
+          <div class="who-links">
+            <a href="https://github.com/santilpz28" target="_blank" rel="noreferrer" class="who-link">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+              <span>github / <strong>santilpz28</strong></span>
+            </a>
+            <a href="https://www.linkedin.com/in/santiagolopez-cyber/" target="_blank" rel="noreferrer" class="who-link">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667h-3.554v-11.452h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zm-15.11-13.019c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019h-3.564v-11.452h3.564v11.452zm15.106-20.452h-20.454c-.979 0-1.771.774-1.771 1.729v20.542c0 .956.792 1.729 1.771 1.729h20.451c.978 0 1.778-.773 1.778-1.729v-20.542c0-.955-.8-1.729-1.778-1.729z"/></svg>
+              <span>linkedin / <strong>santiagolopez-cyber</strong></span>
+            </a>
+            <a href="mailto:santi.lpz28@gmail.com" class="who-link">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <span>santi.lpz28@gmail.com</span>
+            </a>
+          </div>
         </div>
+      </div>
+
+      <!-- Identity facets: 2x2 grid of who-you-are cards -->
+      <div class="who-facets">
+        <div class="facet">
+          <div class="facet-num">01</div>
+          <div class="facet-title">Hybrid athlete</div>
+          <div class="facet-sub">Recovery is a feature, not a luxury</div>
+          <p>Hyrox, sauna, strict sleep protocol. The body is the runtime — if the runtime is hot, the output is bad.</p>
+        </div>
+        <div class="facet">
+          <div class="facet-num">02</div>
+          <div class="facet-title">Founder mentality</div>
+          <div class="facet-sub">Build · ship · measure · iterate</div>
+          <p>Chain-Cortex is not a CV line — it's a working product. ChainGuard.live, public case studies, paying audits.</p>
+        </div>
+        <div class="facet">
+          <div class="facet-num">03</div>
+          <div class="facet-title">Security-first</div>
+          <div class="facet-sub">Evidence over opinions</div>
+          <p>eJPT, RHCSA, eWPT (in progress), OSCP (late 2026). I don't submit findings I can't prove on a mainnet fork.</p>
+        </div>
+        <div class="facet">
+          <div class="facet-num">04</div>
+          <div class="facet-title">Multi-stack native</div>
+          <div class="facet-sub">Data, infra, and code, in the same head</div>
+          <p>Python · Solidity · Rust · Bash · SAP/BI. Comfortable at the SQL query and at the EVM opcode.</p>
+        </div>
+      </div>
+
+      <!-- Stack strip: one line of what I work in -->
+      <div class="who-stack">
+        <span class="who-stack-label mono">/ stack</span>
+        <span class="who-stack-pill">Python</span>
+        <span class="who-stack-pill">Solidity</span>
+        <span class="who-stack-pill">Rust</span>
+        <span class="who-stack-pill">Foundry</span>
+        <span class="who-stack-pill">Slither</span>
+        <span class="who-stack-pill">Halmos</span>
+        <span class="who-stack-pill">n8n</span>
+        <span class="who-stack-pill">Docker</span>
+        <span class="who-stack-pill">PostgreSQL</span>
+        <span class="who-stack-pill">FastAPI</span>
+        <span class="who-stack-pill">React</span>
+        <span class="who-stack-pill">Linux</span>
+        <span class="who-stack-pill">Bash</span>
       </div>
     </section>
 
-    <!-- ═══════ TIMELINE ═══════ -->
+    <!-- ═══════ TIMELINE / JOURNEY ═══════ -->
     <section id="timeline" class="section-pad container">
       <div class="section-header">
         <div class="eyebrow">Journey</div>
         <h2>Timeline · experience &amp; certifications</h2>
-        <p>Hover a dot for date, click for the full entry. Filter by tags or type. Keyboard accessible.</p>
+        <p>One decade compressed into a track. Each stop is a real commitment — role, cert, or shipped artefact. Filter or search.</p>
       </div>
 
       <div class="tl-controls">
@@ -531,7 +572,12 @@
       </div>
 
       <div id="resultInfo" class="result-info" aria-live="polite"></div>
-      <div id="tl-grid" class="timeline" aria-label="Timeline"></div>
+
+      <!-- Vertical subway-style timeline with alternating sides -->
+      <div class="tl-rail">
+        <div class="tl-track" aria-hidden="true"></div>
+        <div id="tl-grid" class="tl-stops" aria-label="Timeline"></div>
+      </div>
 
       <script type="application/json" id="timeline-data">[
         {"id":"wal-ops","type":"exp","title":"Ops @ Wild About Lapland (FI)","subtitle":"Linux on-prem + operational improvement","date":"2022-01-10","end":"2023-01-10","dateLabel":"Jan '22","tags":["Linux","Ops","On-prem"],"side":"left","body":"<ul style='list-style:disc;padding-left:1.25rem'><li>Lightweight Linux administration and operations support</li><li>Process optimization using data</li></ul>"},
@@ -542,7 +588,7 @@
         {"id":"gm-data-analyst","type":"exp","title":"Data Analyst / Controller @ General Mills","subtitle":"SAP → Power BI automations","date":"2024-11-01","end":"present","dateLabel":"Nov '24","tags":["Data","BI","SAP","Power BI","VBA"],"side":"right","body":"<ul style='list-style:disc;padding-left:1.25rem'><li>FS10N + PowerQuery + VBA → ~6h/month saved</li><li>Cost control and periodic reporting</li></ul>"},
         {"id":"ewpt-ongoing","type":"cert","title":"eWPT (in progress)","subtitle":"Web Application Penetration Testing","date":"2025-01-15","end":"present","dateLabel":"Jan '25","tags":["Pentest","Web"],"side":"left","body":"<p>SQLi/XSS, auth, logic and app hardening labs.</p>"},
         {"id":"ejpt-2025","type":"cert","title":"eJPT","subtitle":"eLearnSecurity","date":"2025-10-01","dateLabel":"Oct '25","tags":["Pentest","Networks","Web"],"side":"right","body":"<p>Enumeration/networks, web basics, initial exploitation and reporting.</p>"},
-        {"id":"graph-audit-2026","type":"milestone","title":"The Graph Protocol — public audit","subtitle":"2-axis assessment · score 8.2/10","date":"2026-06-20","dateLabel":"Jun '26","tags":["Audit","Web3","EVM","Pashov"],"side":"left","body":"<p>Independent two-axis audit (source + mainnet bytecode). Public case study published.</p>"},
+        {"id":"graph-audit-2026","type":"milestone","title":"The Graph Protocol — public audit","subtitle":"2-axis assessment · honest result, no critical","date":"2026-06-20","dateLabel":"Jun '26","tags":["Audit","Web3","EVM","Pashov"],"side":"left","body":"<p>Independent two-axis audit (source + mainnet bytecode). Public case study published.</p>"},
         {"id":"post-solana-audit-1","type":"post","title":"Post: Secure auditing on Solana","subtitle":"Checklist + PoCs","date":"2025-11-20","dateLabel":"Nov '25","tags":["Web3","Solana","Writeup"],"side":"right","body":"<p>Permissions, common SPL attacks and best practices.</p>","publishAt":"2025-12-20T09:00:00Z","dropTitle":"Secure auditing on Solana"}
       ]</script>
     </section>

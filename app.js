@@ -62,7 +62,7 @@
   }
 
   /* ─── SCROLL REVEAL ──────────────────────────────────────────── */
-  const reveal = document.querySelectorAll('.bento-item, .writeup-card, .tier, .stat-card, .section-header');
+  const reveal = document.querySelectorAll('.bento-item, .writeup-card, .tier, .stat-card, .section-header, .facet, .who-hero, .who-stack');
   reveal.forEach(el => el.classList.add('reveal'));
   if ('IntersectionObserver' in window) {
     const ro = new IntersectionObserver((entries) => {
@@ -78,7 +78,7 @@
     reveal.forEach(el => el.classList.add('in'));
   }
 
-  /* ─── TIMELINE ───────────────────────────────────────────────── */
+  /* ─── TIMELINE (subway-rail v3.1) ─────────────────────────────── */
   const tlGrid = document.getElementById('tl-grid');
   const dataEl = document.getElementById('timeline-data');
   if (tlGrid && dataEl) {
@@ -143,61 +143,36 @@
       }).sort((a, b) => a.date < b.date ? 1 : -1);
     };
 
-    const popover = (item, dot) => {
-      let p = document.getElementById('cc-popover');
-      if (!p) {
-        p = document.createElement('div');
-        p.id = 'cc-popover';
-        p.className = 'popover';
-        p.setAttribute('role', 'dialog');
-        document.body.appendChild(p);
-      }
-      const dateTxt = `${fmtDate(item.date)}${item.end && item.end !== 'present' ? ' – ' + fmtDate(item.end) : (item.end === 'present' ? ' – present' : '')}`;
-      p.innerHTML = `
-        <button class="close" aria-label="Close">×</button>
-        <h3>${item.title}</h3>
-        <time>${dateTxt} · ${TYPES[item.type] || item.type}</time>
-        ${item.subtitle ? `<p style="margin-top:.25rem;color:var(--text)"><em>${item.subtitle}</em></p>` : ''}
-        <div>${item.body || ''}</div>
-        <div class="meta">${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
-      `;
-      p.dataset.open = 'true';
-      p.dataset.side = item.side || 'left';
-      const r = dot.getBoundingClientRect();
-      const top = window.scrollY + r.bottom + 12;
-      let left = item.side === 'right' ? r.right - 380 : r.left;
-      left = Math.max(12, Math.min(left, window.innerWidth - 392));
-      p.style.top = top + 'px';
-      p.style.left = left + 'px';
-      p.querySelector('.close').addEventListener('click', closePop);
-    };
-    const closePop = () => {
-      const p = document.getElementById('cc-popover');
-      if (p) p.dataset.open = 'false';
-    };
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.dot') && !e.target.closest('#cc-popover')) closePop();
-    });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePop(); });
-
     const render = () => {
       const items = filter();
       tlGrid.innerHTML = '';
-      items.forEach((it, i) => {
-        const el = document.createElement('div');
-        el.className = `item ${it.side || (i % 2 ? 'right' : 'left')}`;
-        el.innerHTML = `
-          <div class="bar"></div>
-          <button class="dot dot--${it.type}" data-date="${it.dateLabel}" aria-label="${it.title}"></button>
-          <div class="title">${it.title}</div>
-        `;
-        el.querySelector('.dot').addEventListener('click', (e) => {
-          e.stopPropagation();
-          popover(it, e.currentTarget);
+      if (items.length === 0) {
+        tlGrid.innerHTML = '<div class="tl-empty">No entries match the current filters.</div>';
+      } else {
+        items.forEach((it, i) => {
+          const side = it.side || (i % 2 ? 'right' : 'left');
+          const stop = document.createElement('div');
+          stop.className = `tl-stop ${it.type}`;
+          const dateTxt = `${it.dateLabel}${it.end === 'present' ? ' – present' : (it.end ? ' – ' + new Date(it.end).toLocaleDateString('en-GB', { year: '2-digit', month: 'short' }) : '')}`;
+          stop.innerHTML = `
+            <div class="tl-card ${side}">
+              <div class="tl-date">${dateTxt}</div>
+              <div class="tl-card-title">${it.title}</div>
+              <div class="tl-card-sub">${it.subtitle || ''}</div>
+              <div class="tl-card-tags">${it.tags.map(t => `<span class="tl-card-tag">${t}</span>`).join('')}</div>
+              <div class="tl-card-body">${it.body || ''}</div>
+            </div>
+            <div class="tl-dot">
+              <div class="tl-dot-inner"></div>
+            </div>
+          `;
+          const card = stop.querySelector('.tl-card');
+          card.addEventListener('click', () => {
+            card.classList.toggle('open');
+          });
+          tlGrid.appendChild(stop);
         });
-        tlGrid.appendChild(el);
-        setTimeout(() => el.classList.add('in'), 50 * i);
-      });
+      }
       const info = document.getElementById('resultInfo');
       if (info) {
         info.textContent = items.length === DATA.length
