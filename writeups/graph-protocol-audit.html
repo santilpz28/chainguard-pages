@@ -4,13 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>The Graph Protocol Audit — Chain-Cortex Case Study</title>
-  <meta name="description" content="Independent security audit of The Graph Protocol smart contracts: two-axis assessment covering source code (Horizon) and mainnet bytecode. 8.2/10 score, Pashov methodology." />
+  <meta name="description" content="Independent security audit of The Graph Protocol smart contracts. Result: 0 critical/high exploitable. 10 defense-in-depth findings + on-chain verification. Pashov methodology." />
   <meta name="author" content="Santiago López (Chain-Cortex)" />
   <meta name="keywords" content="Web3 audit, smart contract security, Solidity, The Graph, GRT, Foundry, Slither, Pashov" />
 
   <!-- Open Graph -->
   <meta property="og:title" content="The Graph Protocol Audit — Chain-Cortex Case Study">
-  <meta property="og:description" content="Independent security audit. 8.2/10 score. Pashov methodology, two-axis coverage.">
+  <meta property="og:description" content="Independent security audit. Result: 0 critical/high exploitable. 10 defense-in-depth findings, on-chain verification. Two-axis coverage.">
   <meta property="og:type" content="article">
   <meta property="og:url" content="https://santilpz28.github.io/chainguard-pages/writeups/graph-protocol-audit.html">
   <meta property="og:image" content="https://santilpz28.github.io/chainguard-pages/og.jpg">
@@ -74,6 +74,13 @@
       <h1>The Graph Protocol</h1>
       <p class="text-lg text-slate-300">Independent security audit of a $1B+ TVL decentralized indexing protocol. Two-axis assessment covering source code (Horizon) and mainnet bytecode (21 production contracts).</p>
 
+      <div class="not-prose callout mt-6 p-5 rounded-xl border-2 border-cyan-400/40 bg-cyan-400/5">
+        <div class="text-xs uppercase tracking-widest text-cyan-300 font-semibold mb-2">Bottom line</div>
+        <p class="text-slate-200 text-base leading-relaxed">
+          <strong>No critical or high-severity vulnerability exploitable by an external attacker was found.</strong> The protocol's mainnet contracts (<span class="font-mono text-cyan-300">L1Staking</span> with 176M GRT, <span class="font-mono text-cyan-300">BridgeEscrow</span>, <span class="font-mono text-cyan-300">L1GNS</span>, etc.) are <strong>battle-tested</strong> across 5+ years of mainnet operation, 3+ independent audits, an in-house security team, and an active bug bounty program. The 10 issues surfaced in this engagement are defense-in-depth improvements and a historical operational misconfiguration that was verified on-chain to be non-exploitable. The full report is available to The Graph Council on request.
+        </p>
+      </div>
+
       <div class="not-prose grid grid-cols-2 md:grid-cols-4 gap-3 my-6">
         <div class="card p-4 text-center">
           <div class="text-3xl font-bold text-cyan-400">8.2</div>
@@ -129,7 +136,7 @@
         </tbody>
       </table>
 
-      <p><strong>Headline result:</strong> no critical-severity vulnerabilities exploitable by external attackers were found. The 10 remaining issues are defense-in-depth improvements and a historical operational misconfiguration that was verified on-chain to be non-exploitable.</p>
+      <p><strong>Headline result:</strong> no critical-severity vulnerabilities exploitable by external attackers were found in either the source or the mainnet bytecode. The 10 remaining issues are defense-in-depth improvements and a historical operational misconfiguration that was verified on-chain to be non-exploitable. This is the expected outcome for a protocol that has been in production for over five years with an active security program — finding a previously unknown critical vulnerability in this kind of codebase is statistically unlikely, and our engagement did not produce one.</p>
 
       <h2>Operational Security Investigation</h2>
       <p>One of the medium findings during initial analysis was a public BIP-39 mnemonic in the legacy deployment configuration, assigned as the signer for Arbitrum One (mainnet) network. Without verification, this would have been flagged as critical.</p>
@@ -149,6 +156,15 @@
         </tbody>
       </table>
 
+      <h2>Why "no critical" is itself a finding</h2>
+      <p>A common misconception in the Web3 security industry is that an audit without critical findings is a "boring" audit. The opposite is true: a clean result on a $1B+ TVL protocol is <strong>one of the most informative outcomes</strong> an external auditor can deliver. It means:</p>
+      <ul>
+        <li><strong>The protocol's security budget has been working.</strong> Three or more prior audits, a dedicated in-house team, and an active bug bounty have already removed the obvious and most non-obvious exploit paths.</li>
+        <li><strong>The remaining 10 issues are the right shape.</strong> None of them represent an active threat; they all represent hardening of patterns that are already in place but could be tightened.</li>
+        <li><strong>Independent verification of the operational story.</strong> A naive scan would have flagged a public BIP-39 mnemonic as critical; the on-chain check confirmed it was a non-issue. That kind of triage is what clients pay for.</li>
+      </ul>
+      <p>If a new audit engagement on a battle-tested protocol produced a Critical finding, that finding would actually be more remarkable than the absence of one. It would also warrant a more skeptical review, because the question would immediately become: <em>why didn't the prior audits, the in-house team, and the bug bounty find this?</em></p>
+
       <h2>Positive Observations</h2>
       <p>What stands out about The Graph's security posture:</p>
       <ul>
@@ -163,7 +179,7 @@
       <p>The total fix effort across all 10 findings is <strong>~4.5 hours of development work</strong>. After applying these fixes, the protocol will have no remaining defense-in-depth gaps identified by either audit. The protocol can continue operating without changes in the interim.</p>
 
       <h2>Methodology Reuse</h2>
-      <p>This two-axis pattern (source + mainnet) is highly portable. It works particularly well for protocols that:</p>
+      <p>One honest note: the methodology below is most valuable as a <strong>structured way to verify a clean protocol</strong>, not only as a way to find new bugs. The two-axis pattern (source + mainnet) works well for protocols that:</p>
       <ul>
         <li>Have an Immunefi or similar bug bounty program (mainnet bytecode is downloadable)</li>
         <li>Have an open-source repository (source code is auditable)</li>
