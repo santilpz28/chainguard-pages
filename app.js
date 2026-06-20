@@ -62,7 +62,7 @@
   }
 
   /* ─── SCROLL REVEAL ──────────────────────────────────────────── */
-  const reveal = document.querySelectorAll('.bento-item, .writeup-card, .tier, .stat-card, .section-header, .facet, .who-hero, .who-stack');
+  const reveal = document.querySelectorAll('.bento-item, .writeup-card, .tier, .stat-card, .section-header, .facet, .who-hero, .who-stack, .method-phase, .method-step, .method-why, .stack-cell');
   reveal.forEach(el => el.classList.add('reveal'));
   if ('IntersectionObserver' in window) {
     const ro = new IntersectionObserver((entries) => {

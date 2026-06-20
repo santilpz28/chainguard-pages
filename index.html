@@ -342,109 +342,120 @@
       </div>
     </section>
 
-    <!-- ═══════ METHODOLOGY (BENTO) ═══════ -->
+    <!-- ═══════ METHODOLOGY ═══════ -->
     <section id="methodology" class="section-pad container">
       <div class="section-header">
         <div class="eyebrow">How I work</div>
         <h2>Methodology</h2>
-        <p>Pashov Audit Group two-phase pipeline. Augmento con 12-agent walkthrough para reducir FP rate a <span class="accent mono">&lt;1%</span>.</p>
+        <p>Two-phase pipeline, augmented with a 12-agent walkthrough. Output: a finding you can reproduce, not a finding you can argue with.</p>
       </div>
 
-      <div class="bento">
-        <div class="bento-item wide">
-          <div class="bento-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </div>
-          <h3 class="bento-title">1. Recon &amp; OSINT</h3>
-          <p class="bento-desc">Domain, contract, address. WHOIS, DNS, footprint, on-chain history. Establishes the threat model before any code is read.</p>
+      <!-- Phase 1: structural / on-chain (left) vs Phase 2: manual / 12-agent (right) -->
+      <div class="method-phases">
+        <div class="method-phase phase-1">
+          <div class="method-phase-tag">Phase 1</div>
+          <div class="method-phase-title">Recon &amp; structural</div>
+          <div class="method-phase-sub">~20% of time · fast, mechanical, repeatable</div>
+          <p>Map the surface before reading a line of code. Tools run first, they don't run alone.</p>
         </div>
+        <div class="method-phase phase-2">
+          <div class="method-phase-tag phase-2">Phase 2</div>
+          <div class="method-phase-title">Manual &amp; 12-agent</div>
+          <div class="method-phase-sub">~80% of time · slow, deliberate, defensible</div>
+          <p>The real work: where you read the protocol like a forensic auditor and the AI augments your angle, not replaces it.</p>
+        </div>
+      </div>
 
-        <div class="bento-item">
-          <div class="bento-icon violet">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          </div>
-          <h3 class="bento-title">2. On-chain check</h3>
-          <p class="bento-desc">Holders, LP lock, vesting, permissions. Etherscan API for historical verification of any operational flag.</p>
+      <!-- Linear pipeline: 6 stops, each one a phase -->
+      <div class="method-pipeline">
+        <div class="method-step">
+          <div class="method-step-num">01</div>
+          <div class="method-step-title">Recon &amp; OSINT</div>
+          <div class="method-step-line">Domain, contracts, addresses, deployer history, prior audit reports. Threat model before the first <code>cast call</code>.</div>
         </div>
+        <div class="method-step">
+          <div class="method-step-num">02</div>
+          <div class="method-step-title">On-chain check</div>
+          <div class="method-step-line">Holders, multisigs, timelocks, admin powers, upgrade history. Etherscan API for any operational flag. EIP-1967 storage slots for proxy implementations.</div>
+        </div>
+        <div class="method-step">
+          <div class="method-step-num">03</div>
+          <div class="method-step-title">Static analysis</div>
+          <div class="method-step-line">Slither full sweep + x-ray threat model. Expected 89-99% FP rate on mature codebases; that's the baseline, not the result.</div>
+        </div>
+        <div class="method-step">
+          <div class="method-step-num">04</div>
+          <div class="method-step-title">Contract review</div>
+          <div class="method-step-line">Reentrancy, approvals, access control, math, storage, governance, MEV. 12 parallel reasoning lenses, every angle checked.</div>
+        </div>
+        <div class="method-step">
+          <div class="method-step-num">05</div>
+          <div class="method-step-title">PoC &amp; validation</div>
+          <div class="method-step-line">Every finding gets a reproducer. Foundry for state, Halmos for symbolic, manual for edge cases. No finding ships without a PoC.</div>
+        </div>
+        <div class="method-step">
+          <div class="method-step-num">06</div>
+          <div class="method-step-title">Report &amp; mitigations</div>
+          <div class="method-step-line">Markdown deliverable, 30-min readout, severity rubric, fix diff, post-fix re-audit. Senior tier: signed off, not hand-waved.</div>
+        </div>
+      </div>
 
-        <div class="bento-item">
-          <div class="bento-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-          </div>
-          <h3 class="bento-title">3. Static analysis</h3>
-          <p class="bento-desc">Slither full sweep + x-ray threat model. Dedicated FP analysis: typical 89-99% FP rate filtered out.</p>
-        </div>
-
-        <div class="bento-item wide">
-          <div class="bento-icon violet">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6l-8-4z"/></svg>
-          </div>
-          <h3 class="bento-title">4. Contract review</h3>
-          <p class="bento-desc">Reentrancy, approvals, invariants, access control. 12-agent walkthrough: every angle (math, gas, storage, governance) checked in parallel.</p>
-        </div>
-
-        <div class="bento-item">
-          <div class="bento-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
-          </div>
-          <h3 class="bento-title">5. PoC &amp; validation</h3>
-          <p class="bento-desc">Every finding gets a reproducer. Foundry tests for state, halmos for symbolic, manual for edge cases.</p>
-        </div>
-
-        <div class="bento-item">
-          <div class="bento-icon violet">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
-          </div>
-          <h3 class="bento-title">6. Report &amp; mitigations</h3>
-          <p class="bento-desc">Markdown deliverable + 30-min readout. Severity, PoC, fix diff, and post-fix re-audit included in senior tier.</p>
-        </div>
+      <!-- Bottom: why this works -->
+      <div class="method-why">
+        <div class="method-why-tag">Why this pipeline</div>
+        <p>
+          Static analysis alone catches ~10-20% of real bugs. Manual review alone scales linearly with your time. <strong>The combination is non-linear</strong>: tools reduce the search space, manual review fills the gaps the tools can't reason about (business logic, incentive alignment, governance). 12-agent walkthrough is the multiplier — every lens finds different classes of bugs.
+        </p>
+        <p class="method-why-stat">
+          <span class="hl-cyan">99%</span> FP reduction · <span class="hl-cyan">10×</span> faster than pure-manual · <span class="hl-cyan">100%</span> PoC-backed findings
+        </p>
       </div>
     </section>
 
-    <!-- ═══════ STACK / SKILLS ═══════ -->
+    <!-- ═══════ STACK / TOOLING ═══════ -->
     <section id="stack" class="section-pad container">
       <div class="section-header">
         <div class="eyebrow">Tooling</div>
-        <h2>Stack &amp; tooling</h2>
-        <p>What I touch daily. No buzzwords — every line below is something I've shipped or audited in the last 12 months.</p>
+        <h2>Stack</h2>
+        <p>Six tools I touch daily. Everything else is Google &amp; muscle memory.</p>
       </div>
 
-      <div class="glass" style="padding:1.5rem;">
-        <div class="skill-row">
-          <div class="skill-label">Audit</div>
-          <div class="skill-items">
-            <span class="chip">Foundry</span><span class="chip">forge</span><span class="chip">cast</span><span class="chip">anvil</span><span class="chip">Slither</span><span class="chip">Halmos</span><span class="chip">Medusa</span><span class="chip">Echidna</span><span class="chip">Mythril</span><span class="chip">solc-select</span>
-          </div>
+      <div class="stack-grid">
+        <div class="stack-cell">
+          <div class="stack-cell-num">01</div>
+          <div class="stack-cell-name">Foundry</div>
+          <div class="stack-cell-role">Smart-contract dev &amp; testing</div>
+          <p>The default. <code>forge test</code> runs in 2s, <code>cast</code> queries mainnet in 50ms, <code>anvil</code> forks any chain in 1s.</p>
         </div>
-        <div class="skill-row">
-          <div class="skill-label">Languages</div>
-          <div class="skill-items">
-            <span class="chip">Solidity ^0.8</span><span class="chip">Yul</span><span class="chip">Rust (Anchor)</span><span class="chip">Python 3.10+</span><span class="chip">TypeScript</span><span class="chip">Bash</span><span class="chip">SQL</span>
-          </div>
+        <div class="stack-cell">
+          <div class="stack-cell-num">02</div>
+          <div class="stack-cell-name">Slither + Halmos</div>
+          <div class="stack-cell-role">Static + symbolic analysis</div>
+          <p>Slither is the noisy first pass. Halmos is the slow second pass. Both beat 100% manual on coverage.</p>
         </div>
-        <div class="skill-row">
-          <div class="skill-label">Web3</div>
-          <div class="skill-items">
-            <span class="chip">EVM</span><span class="chip">Solana</span><span class="chip">SPL</span><span class="chip">ERC-20/721/1155</span><span class="chip">EIP-712</span><span class="chip">EIP-2612</span><span class="chip">EIP-7702</span><span class="chip">OpenZeppelin</span><span class="chip">LayerZero</span>
-          </div>
+        <div class="stack-cell">
+          <div class="stack-cell-num">03</div>
+          <div class="stack-cell-name">Python 3.10+</div>
+          <div class="stack-cell-role">Scraping, analysis, automation</div>
+          <p><code>asyncio</code> + <code>httpx</code> for scrapers, <code>polars</code> for on-chain data, <code>reportlab</code> for CVs. The duct tape that ships.</p>
         </div>
-        <div class="skill-row">
-          <div class="skill-label">Pentest</div>
-          <div class="skill-items">
-            <span class="chip">Burp Suite</span><span class="chip">Nmap</span><span class="chip">masscan</span><span class="chip">amass</span><span class="chip">subfinder</span><span class="chip">theHarvester</span><span class="chip">ffuf</span><span class="chip">httpx</span>
-          </div>
+        <div class="stack-cell">
+          <div class="stack-cell-num">04</div>
+          <div class="stack-cell-name">Solidity ^0.8</div>
+          <div class="stack-cell-role">EVM smart contracts</div>
+          <p>Default for new protocols. I read 0.5-0.8 code daily; the legacy skill is part of the senior tier.</p>
         </div>
-        <div class="skill-row">
-          <div class="skill-label">Backend</div>
-          <div class="skill-items">
-            <span class="chip">FastAPI</span><span class="chip">Pydantic</span><span class="chip">httpx</span><span class="chip">asyncio</span><span class="chip">Pandas</span><span class="chip">Polars</span><span class="chip">PostgreSQL</span><span class="chip">Redis</span><span class="chip">Docker</span><span class="chip">Prometheus</span><span class="chip">Grafana</span>
-          </div>
+        <div class="stack-cell">
+          <div class="stack-cell-num">05</div>
+          <div class="stack-cell-name">n8n + Docker</div>
+          <div class="stack-cell-role">Workflow automation</div>
+          <p>Domain-score, ChainGuard, jobhunter — all run on n8n + Docker. Self-hosted, no SaaS lock-in.</p>
         </div>
-        <div class="skill-row">
-          <div class="skill-label">Infra</div>
-          <div class="skill-items">
-            <span class="chip">Linux (RHEL)</span><span class="chip">RHCSA</span><span class="chip">systemd</span><span class="chip">cron</span><span class="chip">n8n</span><span class="chip">Airflow</span><span class="chip">GitHub Actions</span><span class="chip">OIDC</span><span class="chip">SLSA</span>
-          </div>
+        <div class="stack-cell">
+          <div class="stack-cell-num">06</div>
+          <div class="stack-cell-name">Linux + Bash</div>
+          <div class="stack-cell-role">Runtime, automation, glue</div>
+          <p>RHCSA-certified. <code>grep</code>, <code>awk</code>, <code>sed</code>, <code>systemd</code>, <code>cron</code>. The boring stuff that ships.</p>
         </div>
       </div>
     </section>
@@ -588,7 +599,6 @@
         {"id":"gm-data-analyst","type":"exp","title":"Data Analyst / Controller @ General Mills","subtitle":"SAP → Power BI automations","date":"2024-11-01","end":"present","dateLabel":"Nov '24","tags":["Data","BI","SAP","Power BI","VBA"],"side":"right","body":"<ul style='list-style:disc;padding-left:1.25rem'><li>FS10N + PowerQuery + VBA → ~6h/month saved</li><li>Cost control and periodic reporting</li></ul>"},
         {"id":"ewpt-ongoing","type":"cert","title":"eWPT (in progress)","subtitle":"Web Application Penetration Testing","date":"2025-01-15","end":"present","dateLabel":"Jan '25","tags":["Pentest","Web"],"side":"left","body":"<p>SQLi/XSS, auth, logic and app hardening labs.</p>"},
         {"id":"ejpt-2025","type":"cert","title":"eJPT","subtitle":"eLearnSecurity","date":"2025-10-01","dateLabel":"Oct '25","tags":["Pentest","Networks","Web"],"side":"right","body":"<p>Enumeration/networks, web basics, initial exploitation and reporting.</p>"},
-        {"id":"graph-audit-2026","type":"milestone","title":"The Graph Protocol — public audit","subtitle":"2-axis assessment · honest result, no critical","date":"2026-06-20","dateLabel":"Jun '26","tags":["Audit","Web3","EVM","Pashov"],"side":"left","body":"<p>Independent two-axis audit (source + mainnet bytecode). Public case study published.</p>"},
         {"id":"post-solana-audit-1","type":"post","title":"Post: Secure auditing on Solana","subtitle":"Checklist + PoCs","date":"2025-11-20","dateLabel":"Nov '25","tags":["Web3","Solana","Writeup"],"side":"right","body":"<p>Permissions, common SPL attacks and best practices.</p>","publishAt":"2025-12-20T09:00:00Z","dropTitle":"Secure auditing on Solana"}
       ]</script>
     </section>
