@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>The Graph Protocol Audit — Chain-Cortex Case Study</title>
+  <meta name="description" content="Independent security audit of The Graph Protocol smart contracts: two-axis assessment covering source code (Horizon) and mainnet bytecode. 8.2/10 score, Pashov methodology." />
+  <meta name="author" content="Santiago López (Chain-Cortex)" />
+  <meta name="keywords" content="Web3 audit, smart contract security, Solidity, The Graph, GRT, Foundry, Slither, Pashov" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="The Graph Protocol Audit — Chain-Cortex Case Study">
+  <meta property="og:description" content="Independent security audit. 8.2/10 score. Pashov methodology, two-axis coverage.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://santilpz28.github.io/chainguard-pages/writeups/graph-protocol-audit.html">
+  <meta property="og:image" content="https://santilpz28.github.io/chainguard-pages/og.jpg">
+
+  <!-- Fuentes + Tailwind -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="../style.css?v=2025-11-08b">
+  <style>
+    .prose h1, .prose h2, .prose h3 { color: #67e8f9; font-weight: 700; }
+    .prose h1 { font-size: 2.25rem; margin-top: 1.5rem; margin-bottom: 1rem; }
+    .prose h2 { font-size: 1.75rem; margin-top: 2rem; margin-bottom: 0.75rem; }
+    .prose h3 { font-size: 1.25rem; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    .prose p, .prose li { color: #cbd5e1; line-height: 1.7; margin-bottom: 0.75rem; }
+    .prose ul { list-style: disc; padding-left: 1.5rem; }
+    .prose ol { list-style: decimal; padding-left: 1.5rem; }
+    .prose code { background: rgba(34, 211, 238, 0.1); color: #67e8f9; padding: 0.1rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
+    .prose strong { color: #f1f5f9; font-weight: 600; }
+    .prose a { color: #67e8f9; text-decoration: underline; }
+    .prose a:hover { color: #a5f3fc; }
+    .prose table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    .prose th, .prose td { padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(148, 163, 184, 0.2); text-align: left; }
+    .prose th { color: #67e8f9; font-weight: 600; }
+    .badge-crit { background: rgba(239, 68, 68, 0.2); color: #fca5a5; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+    .badge-med { background: rgba(234, 179, 8, 0.2); color: #fde047; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+    .badge-low { background: rgba(34, 197, 94, 0.2); color: #86efac; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+    .badge-ok { background: rgba(34, 197, 94, 0.2); color: #86efac; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="section header-inner">
+      <a href="../index.html" class="flex items-center gap-3 group">
+        <div class="h-8 w-8 rounded-xl grid place-items-center text-black font-extrabold bg-cyan-300 group-hover:bg-cyan-200 transition">CG</div>
+        <span class="font-semibold tracking-tight">ChainGuard · Santi</span>
+      </a>
+      <nav class="site-nav hidden md:flex" aria-label="Main">
+        <a href="../index.html#writeups">Writeups</a>
+        <a href="../index.html#perfil">Profile</a>
+        <a href="../index.html#metodos">Methods</a>
+        <a href="../index.html#stack">Stack</a>
+        <a href="../index.html#servicios">Services</a>
+        <a href="../index.html#portafolio">Portfolio</a>
+        <a href="../index.html#contacto">Contact</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <a href="../index.html" class="btn btn-outline">← Back</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="prose section section-pad max-w-4xl">
+      <div class="text-xs text-slate-400 uppercase tracking-wide">Case Study · Smart Contract Audit</div>
+      <h1>The Graph Protocol</h1>
+      <p class="text-lg text-slate-300">Independent security audit of a $1B+ TVL decentralized indexing protocol. Two-axis assessment covering source code (Horizon) and mainnet bytecode (21 production contracts).</p>
+
+      <div class="not-prose grid grid-cols-2 md:grid-cols-4 gap-3 my-6">
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">8.2</div>
+          <div class="text-xs text-slate-400 mt-1">Final score / 10</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">0</div>
+          <div class="text-xs text-slate-400 mt-1">Critical findings</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">10</div>
+          <div class="text-xs text-slate-400 mt-1">Real findings</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">99.4%</div>
+          <div class="text-xs text-slate-400 mt-1">Slither FP reduction</div>
+        </div>
+      </div>
+
+      <h2>Scope</h2>
+      <p>The engagement covered two complementary views of the protocol:</p>
+      <ul>
+        <li><strong>Audit A — Source code (Horizon):</strong> the new module under active development. 505 files, 87.5k LOC, 99.36% test coverage from the upstream team.</li>
+        <li><strong>Audit B — Mainnet bytecode:</strong> 21 production contracts already deployed on Ethereum mainnet, obtained via the Immunefi Instascope export. 27.5k LOC of contract code, solc 0.5.3 to 0.8.27.</li>
+      </ul>
+      <p>Each axis was analyzed independently. Findings were then deduplicated and cross-referenced. A separate on-chain investigation (using the Etherscan API) verified one operational-security flag in the deployment configuration.</p>
+
+      <h2>Methodology</h2>
+      <p>The audit followed the Pashov Audit Group two-phase methodology, augmented with an in-house 12-agent walkthrough skill:</p>
+      <ol>
+        <li><strong>Phase 1 — Automated & structural:</strong> Foundry build, Slither static analysis (1,606 raw findings across both axes), x-ray threat modeling, Etherscan on-chain history checks, Foundry coverage.</li>
+        <li><strong>Phase 2 — Manual review:</strong> 12 parallel reasoning lenses (reentrancy, access control, math, gas, etc.), line-by-line reading of every high-LOC core contract, cross-reference between tool output and invariants, non-Solidity deep audit (CI/CD, deployment scripts, hardhat keys, dependencies).</li>
+      </ol>
+
+      <h2>Findings</h2>
+      <p>Of 1,606 raw Slither findings, only <strong>10 issues survived</strong> the FP analysis — a 99.4% reduction rate, consistent with the protocol's maturity.</p>
+
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Severity</th><th>Category</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>A-C-1</td><td><span class="badge-med">Medium</span></td><td>Access control</td><td>Defense-in-depth</td></tr>
+          <tr><td>A-C-2</td><td><span class="badge-med">Medium</span></td><td>Reentrancy (cross-function)</td><td>Defense-in-depth</td></tr>
+          <tr><td>A-M-1</td><td><span class="badge-med">Medium</span></td><td>Trust boundary</td><td>Documented by team</td></tr>
+          <tr><td>A-M-2</td><td><span class="badge-med">Medium</span></td><td>Token compatibility</td><td>Defense-in-depth</td></tr>
+          <tr><td>B-M-1</td><td><span class="badge-med">Medium</span></td><td>Upgrade pattern</td><td>Defense-in-depth</td></tr>
+          <tr><td>B-M-2</td><td><span class="badge-med">Medium</span></td><td>SafeERC20</td><td>Defense-in-depth</td></tr>
+          <tr><td>B-M-3</td><td><span class="badge-med">Medium</span></td><td>Reentrancy (CEI)</td><td>Theoretical</td></tr>
+          <tr><td>A-N-1 / B-L-2</td><td><span class="badge-low">Low</span></td><td>Operational security</td><td>Verified non-exploitable</td></tr>
+          <tr><td>A-N-2 / A-N-3</td><td><span class="badge-low">Low</span></td><td>Configuration</td><td>Best practice</td></tr>
+          <tr><td>B-L-1</td><td><span class="badge-low">Low</span></td><td>Legacy proxy</td><td>Unused (verified)</td></tr>
+        </tbody>
+      </table>
+
+      <p><strong>Headline result:</strong> no critical-severity vulnerabilities exploitable by external attackers were found. The 10 remaining issues are defense-in-depth improvements and a historical operational misconfiguration that was verified on-chain to be non-exploitable.</p>
+
+      <h2>Operational Security Investigation</h2>
+      <p>One of the medium findings during initial analysis was a public BIP-39 mnemonic in the legacy deployment configuration, assigned as the signer for Arbitrum One (mainnet) network. Without verification, this would have been flagged as critical.</p>
+      <p>Using the Etherscan API v2, I derived the address at BIP-44 path <code>m/44'/60'/0'/0/0</code> and pulled the full transaction history. The result: 1,930 transactions on Arbitrum One, but <strong>no privileged role in The Graph protocol</strong> — the actual <code>GraphProxyAdmin</code> on Arbitrum One is a different address, and the activity pattern is consistent with an unrelated third-party developer who used the public Hardhat default mnemonic. The severity was downgraded from Critical to Low.</p>
+      <p>This is the value of <strong>on-chain verification</strong> over static analysis alone — Slither and grep would have flagged the public mnemonic regardless, but only by checking the actual on-chain activity can we confirm whether the threat is real.</p>
+
+      <h2>Tooling Metrics</h2>
+      <table>
+        <thead><tr><th>Metric</th><th>Audit A (Source)</th><th>Audit B (Mainnet)</th></tr></thead>
+        <tbody>
+          <tr><td>Contracts in scope</td><td>98</td><td>21 + 295 bundled</td></tr>
+          <tr><td>Core LOC</td><td>6,140</td><td>27,558</td></tr>
+          <tr><td>Raw Slither findings</td><td>229</td><td>1,377</td></tr>
+          <tr><td>Real findings</td><td>4</td><td>6</td></tr>
+          <tr><td>Test coverage (line)</td><td>99.36%</td><td>n/a (bytecode)</td></tr>
+          <tr><td>Session duration</td><td>~6 h</td><td>~90 min</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Positive Observations</h2>
+      <p>What stands out about The Graph's security posture:</p>
+      <ul>
+        <li><strong>High test coverage</strong> — 99.36% line coverage on the Horizon package, with explicit regression tests for known attack vectors (returndata bombing, replay attacks, unauthorized service attacks).</li>
+        <li><strong>Active auditor engagement</strong> — Trust Security audit tags appear throughout the commit history.</li>
+        <li><strong>Strong CI/CD hygiene</strong> — OIDC trusted publishing, SLSA provenance, audit-label gate on PRs to <code>main</code>.</li>
+        <li><strong>Multisig governance</strong> — All admin operations route through a GnosisSafe.</li>
+        <li><strong>Proactive secrets migration</strong> — Horizon and subgraph-service were migrated to <code>hardhat-secure-accounts</code> in late 2024; the legacy v5 package remains the only gap.</li>
+      </ul>
+
+      <h2>Recommendation Summary</h2>
+      <p>The total fix effort across all 10 findings is <strong>~4.5 hours of development work</strong>. After applying these fixes, the protocol will have no remaining defense-in-depth gaps identified by either audit. The protocol can continue operating without changes in the interim.</p>
+
+      <h2>Methodology Reuse</h2>
+      <p>This two-axis pattern (source + mainnet) is highly portable. It works particularly well for protocols that:</p>
+      <ul>
+        <li>Have an Immunefi or similar bug bounty program (mainnet bytecode is downloadable)</li>
+        <li>Have an open-source repository (source code is auditable)</li>
+        <li>Have been audited previously (findings dedup against known issues)</li>
+      </ul>
+      <p>Total time for a similar engagement: <strong>2-4 hours for an experienced auditor</strong>, scaling with codebase size and prior audit count.</p>
+
+      <hr class="my-8 border-slate-700">
+
+      <div class="not-prose card p-6 bg-slate-800/40">
+        <h3 class="font-semibold text-cyan-300 mb-2">Want a similar audit?</h3>
+        <p class="text-sm text-slate-300">Chain-Cortex offers tiered smart-contract audits starting at $500 (Phase 1 automated) up to $25k (Phase 1 + Phase 2 manual + symbolic execution). Senior tier typically delivered in 3-5 business days for protocols up to 30k LOC.</p>
+        <div class="mt-4 flex gap-3 flex-wrap">
+          <a href="mailto:santi.lpz28@gmail.com?subject=Audit%20enquiry" class="btn">Email enquiry</a>
+          <a href="https://www.linkedin.com/in/santiagolopez-cyber/" target="_blank" rel="noopener" class="btn btn-outline">LinkedIn</a>
+        </div>
+      </div>
+
+      <div class="not-prose mt-8 text-xs text-slate-500">
+        <p>Auditor: Santiago López (Chain-Cortex) · 2026-06-20 · Methodology: Pashov + chain-cortex-audit skill.</p>
+        <p>Findings shared with explicit consent of the audit scope. Specific PoC details, line numbers, and operational details are intentionally redacted in this public summary; full technical report available to The Graph Council on request.</p>
+      </div>
+    </article>
+  </main>
+
+  <footer class="section section-pad text-center text-xs text-slate-500 mt-12">
+    <p>© 2026 Santiago López · Chain-Cortex · All findings published in good faith under responsible-disclosure norms.</p>
+  </footer>
+</body>
+</html>

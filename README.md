@@ -30,11 +30,16 @@ The page is **statically generated** (no build step) — pure HTML + Tailwind CD
 ## ✨ Sections
 
 1. **Hero** — Name, role, tagline, primary CTA (chain guard demo)
-2. **About** — 3-paragraph bio (Cybersecurity + Web3 + Master Blockchain)
-3. **Featured Projects** — Cards for ChainGuard, Solidity Labs, OSINT, IoT
-4. **Skills Matrix** — 6 categories, each with specific tools
-5. **Certifications Timeline** — RHCSA, eJPT, Microsoft, eWPT in progress, OSCP target
-6. **Contact** — Email, LinkedIn, GitHub, phone
+2. **Writeups & Auditorías** — Public case studies of security work (The Graph Protocol audit, score 8.2/10)
+3. **About** — 3-paragraph bio (Cybersecurity + Web3 + Master Blockchain)
+4. **Featured Projects** — Cards for ChainGuard, Solidity Labs, OSINT, IoT
+5. **Skills Matrix** — 6 categories, each with specific tools
+6. **Certifications Timeline** — RHCSA, eJPT, Microsoft, eWPT in progress, OSCP target
+7. **Contact** — Email, LinkedIn, GitHub, phone
+
+## 📝 Published writeups
+
+- **[The Graph Protocol — two-axis security audit (8.2/10)](writeups/graph-protocol-audit.html)** (2026-06-20) — Independent audit of a $1B+ TVL decentralized indexing protocol. Source code + mainnet bytecode. 0 critical, 10 findings, 99.4% Slither FP reduction. Methodology: Pashov + chain-cortex-audit skill.
 
 ---
 
