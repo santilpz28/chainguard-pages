@@ -1676,8 +1676,14 @@ main { position: relative; z-index: 1; }
 .tl-stops {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
   position: relative;
+}
+.tl-stop {
+  align-items: stretch !important; /* equalize card heights */
+}
+.tl-card {
+  min-height: 110px;
 }
 .tl-stop {
   display: grid;
@@ -1877,12 +1883,15 @@ main { position: relative; z-index: 1; }
 /* Pipeline: 6-step vertical numbered list */
 .method-pipeline {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.25rem;
   margin-bottom: 2.5rem;
   counter-reset: method;
 }
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+  .method-pipeline { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
   .method-pipeline { grid-template-columns: 1fr; }
 }
 .method-step {

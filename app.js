@@ -62,7 +62,7 @@
   }
 
   /* ─── SCROLL REVEAL ──────────────────────────────────────────── */
-  const reveal = document.querySelectorAll('.bento-item, .writeup-card, .tier, .stat-card, .section-header, .facet, .who-hero, .who-stack, .method-phase, .method-step, .method-why, .stack-cell');
+  const reveal = document.querySelectorAll('.bento-item, .writeup-card, .tier, .stat-card, .section-header, .facet, .method-step, .stack-cell');
   reveal.forEach(el => el.classList.add('reveal'));
   if ('IntersectionObserver' in window) {
     const ro = new IntersectionObserver((entries) => {
@@ -72,8 +72,17 @@
           ro.unobserve(e.target);
         }
       });
-    }, { threshold: 0.1 });
+    }, { threshold: 0.05, rootMargin: '0px 0px -50px 0px' });
     reveal.forEach(el => ro.observe(el));
+    // Safety: if any element is still hidden after 1.5s, force it visible
+    setTimeout(() => {
+      reveal.forEach(el => {
+        if (el.classList.contains('reveal') && !el.classList.contains('in')) {
+          const r = el.getBoundingClientRect();
+          if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('in');
+        }
+      });
+    }, 1500);
   } else {
     reveal.forEach(el => el.classList.add('in'));
   }
