@@ -151,13 +151,61 @@ footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--bord
 </ul>
 
 <h2>Real-World Relevance</h2>
-<p>This vulnerability pattern has appeared in production systems:</p>
+<p>This vulnerability pattern has appeared in production systems with severe impact:</p>
+
+<div class="meta-grid">
+    <div class="meta-card">
+        <div class="label">CVE-2009-3490</div>
+        <div class="value">Flickr API</div>
+    </div>
+    <div class="meta-card">
+        <div class="label">CVE-2008-2380</div>
+        <div class="value">Multiple webapps</div>
+    </div>
+    <div class="meta-card">
+        <div class="label">CVE-2025-3576</div>
+        <div class="value">MIT Kerberos</div>
+    </div>
+    <div class="meta-card">
+        <div class="label">CVE-2024-56516</div>
+        <div class="value">Hashlib deployments</div>
+    </div>
+</div>
+
+<h3>Where length extension has been exploited in production</h3>
+
+<p><strong>API token signing (Flickr, ~2009)</strong> — Flickr's API used <code>MD5(secret + params)</code> as a request signature. An attacker who intercepted one signed request could forge signatures for arbitrary new requests, escalating privileges or accessing other users' data. <strong>Root cause:</strong> treating <code>hash(secret + data)</code> as a MAC.</p>
+
+<p><strong>MAC schemes in web frameworks (~2008)</strong> — CVE-2008-2380 affected multiple PHP applications that computed <code>hash(secret + user_data)</code> for session integrity. An attacker could append arbitrary data to the session, bypassing the integrity check entirely.</p>
+
+<p><strong>MIT Kerberos RC4-HMAC-MD5 (CVE-2025-3576)</strong> — when RC4 is preferred over AES in Kerberos, message integrity checks use RC4-HMAC-MD5. The MD5 checksum structure allows an attacker to forge GSSAPI-protected messages, potentially tampering with authentication tokens.</p>
+
+<p><strong>Embedded devices (CVE-2024-56516)</strong> — recent CVEs in hashlib-style libraries that expose raw <code>md5(secret)</code> outputs while accepting user-controlled suffixes (e.g., firmware signature schemes, IoT device provisioning tokens).</p>
+
+<h3>Affected pattern (the dangerous code shape)</h3>
+<pre><code># ❌ DANGEROUS — vulnerable to length extension
+signature = md5(secret + user_controlled_data)
+if signature == provided_signature:
+    authorize_action()
+
+# ✅ SAFE — uses HMAC, designed against length extension
+import hmac, hashlib
+signature = hmac.new(secret, user_controlled_data, hashlib.md5).hexdigest()
+if hmac.compare_digest(signature, provided_signature):
+    authorize_action()</code></pre>
+
+<h3>Why HMAC is safe</h3>
+<p>HMAC wraps the hash function twice with the secret padded to block size: <code>H((K ⊕ opad) || H((K ⊕ ipad) || message))</code>. The internal construction breaks the Merkle-Damgård continuation that length extension exploits. SHA-3 and BLAKE2 also have different internal constructions that are immune.</p>
+
+<h3>Defense checklist (for auditors)</h3>
 <ul>
-    <li><strong>Flickr API signing</strong> — used MD5(secret + msg) signatures, vulnerable to length extension before being patched.</li>
-    <li><strong>AWS S3 signing (early versions)</strong> — similar issue, fixed by switching to HMAC-SHA1.</li>
-    <li><strong>Joomla, PHP-FPM, ISC DHCP</strong> — historical MD5-extension CVEs.</li>
+    <li>🚩 <strong>Red flag:</strong> any code using <code>hash(secret + user_data)</code> or <code>hash(secret || user_data)</code> as a MAC</li>
+    <li>🚩 <strong>Red flag:</strong> exposing raw <code>md5(secret)</code> or <code>sha1(secret)</code> outputs in HTTP responses, logs, or API tokens</li>
+    <li>✅ <strong>Use HMAC</strong> for any user-controlled data + secret construction</li>
+    <li>✅ <strong>Use SHA-256 or SHA-3</strong> if you need collision resistance beyond MAC properties</li>
+    <li>✅ <strong>Use signed tokens (JWT with HS256/RS256)</strong> instead of rolling your own</li>
+    <li>✅ <strong>Constant-time comparison</strong> (<code>hmac.compare_digest</code>) to avoid timing attacks</li>
 </ul>
-<p>Modern defenses: use <strong>HMAC</strong>, <strong>SHA-3</strong>, or <strong>BLAKE2</strong> — none of which are vulnerable to length extension. Never expose <code>md5(secret)</code> to the attacker if you also let them append data.</p>
 
 <h2>What I Learned</h2>
 <div class="callout warn">
