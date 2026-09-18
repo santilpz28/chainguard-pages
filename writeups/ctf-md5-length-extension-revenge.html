@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CTF: MD5 Length Extension Attack — Chain-Cortex</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+:root { --bg: #0a0e1a; --surface: #111827; --accent: #10b981; --text: #e5e7eb; --muted: #9ca3af; --border: #1f2937; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.7; }
+.container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+header { border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 2rem; }
+header h1 { color: var(--accent); font-size: 2rem; margin-bottom: 0.25rem; }
+header .subtitle { color: var(--muted); font-size: 0.9rem; }
+.badge { display: inline-block; background: var(--surface); border: 1px solid var(--border); padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.85rem; margin-right: 0.5rem; }
+.badge.easy { color: #10b981; border-color: #10b981; }
+.badge.crypto { color: #f59e0b; border-color: #f59e0b; }
+h2 { color: var(--accent); margin: 2rem 0 1rem; font-size: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+h3 { color: var(--text); margin: 1.5rem 0 0.75rem; font-size: 1.15rem; }
+p, li { color: var(--text); margin-bottom: 0.75rem; }
+code { background: var(--surface); border: 1px solid var(--border); padding: 0.15rem 0.4rem; border-radius: 4px; font-family: 'Monaco', 'Courier New', monospace; font-size: 0.9rem; color: var(--accent); }
+pre { background: var(--surface); border: 1px solid var(--border); padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; }
+pre code { background: none; border: none; padding: 0; color: var(--text); }
+.callout { background: rgba(16, 185, 129, 0.05); border-left: 3px solid var(--accent); padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 4px; }
+.callout.warn { background: rgba(245, 158, 11, 0.05); border-left-color: #f59e0b; }
+ul, ol { margin-left: 1.5rem; margin-bottom: 1rem; }
+.tldr { background: var(--surface); border: 1px solid var(--accent); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; }
+.tldr h3 { color: var(--accent); margin-top: 0; }
+.meta-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 1.5rem 0; }
+.meta-card { background: var(--surface); border: 1px solid var(--border); padding: 1rem; border-radius: 8px; }
+.meta-card .label { color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.meta-card .value { color: var(--accent); font-size: 1.1rem; margin-top: 0.25rem; font-weight: 600; }
+.phase { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+.phase h3 { color: var(--accent); margin-top: 0; }
+footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+    <span class="badge easy">Easy</span>
+    <span class="badge crypto">Cryptography</span>
+    <h1>MD5 Length Extension with Chosen-Pad Obstacle</h1>
+    <div class="subtitle">CTF Writeup · Hackademics Forum CTF 2025 · Author: Daysa</div>
+</header>
+
+<div class="tldr">
+    <h3>TL;DR</h3>
+    <p>When a server prints <code>bus_id = md5(secret)</code> and lets you append user-controlled bytes before <code>secret[:N]</code>, sending the <strong>MD5 internal padding for length=52</strong> as your input converts the query into a classic length-extension construction. With 1000 queries you collect the 53 unique hashes (one per N=0..52), anchor N=0 by extending <code>bus_id</code>, then recover the secret byte-by-byte in ~13K predictions.</p>
+</div>
+
+<div class="meta-grid">
+    <div class="meta-card">
+        <div class="label">Category</div>
+        <div class="value">Cryptography</div>
+    </div>
+    <div class="meta-card">
+        <div class="label">Difficulty</div>
+        <div class="value">Easy</div>
+    </div>
+    <div class="meta-card">
+        <div class="label">Points</div>
+        <div class="value">150</div>
+    </div>
+    <div class="meta-card">
+        <div class="label">Author</div>
+        <div class="value">Daysa</div>
+    </div>
+</div>
+
+<h2>The Challenge</h2>
+<p>A small TCP server hands out a 32-hex-char <code>bus_id</code> at the start of each session and lets you submit up to 1000 "obstacle" queries. Each one returns:</p>
+<pre><code>md5(secret + obstacle + secret[:N]).hexdigest()</code></pre>
+<p>where <code>secret = urandom(52)</code> and <code>N = randint(0, 52)</code> is chosen independently per query. Your job is to recover the 52-byte <code>secret</code> and submit it back as hex.</p>
+
+<div class="callout">
+    <strong>Hint:</strong> The server prints <code>bus_id = md5(secret).hexdigest()</code> in the opening banner. That's not decoration — it's the input you need for a length-extension attack.
+</div>
+
+<h2>The Vulnerability</h2>
+<p>This is a textbook <strong>MD5 length extension vulnerability</strong>, but the trick is identifying which <code>obstacle</code> activates the construction. The vulnerable formula is:</p>
+<pre><code>md5(secret + obstacle + secret[:N])</code></pre>
+<p>If <code>obstacle</code> equals the <strong>MD5 internal padding</strong> for a 52-byte message:</p>
+<pre><code>obstacle = b'\x80' + b'\x00' * ((56 - (52 + 1) % 64) % 64) + struct.pack('&lt;Q', 52 * 8)
+        = 12 bytes: 80 00 00 00 a0 01 00 00 00 00 00 00</code></pre>
+<p>then the server computes:</p>
+<pre><code>md5(secret + pad + secret[:N])</code></pre>
+<p>which is the canonical <strong>length-extension construction</strong>. The attacker can predict <code>md5(secret + pad + X)</code> for any <code>X</code> without knowing <code>secret</code>, only needing <code>bus_id = md5(secret)</code> and <code>len(secret) = 52</code>.</p>
+
+<h2>Why the random N doesn't help</h2>
+<p>At first glance the random <code>N ∈ [0, 52]</code> looks like a defense: with 53 possible outputs, you can't tell which hash corresponds to which state. But once you force the server into the length-extension construction:</p>
+<ul>
+    <li>Each of the 53 possible N values produces a <strong>distinct, deterministic hash</strong> for a fixed <code>obstacle = pad</code>.</li>
+    <li>In 1000 queries you'll see each of those 53 hashes <strong>~19 times</strong>.</li>
+    <li>The hash for <code>N = 0</code> is trivially identified: it's <code>md5_extend(bus_id, 52, b"") = md5(secret + pad)</code>.</li>
+    <li>The remaining 52 hashes are exactly <code>md5(secret + pad + secret[:N])</code> for <code>N = 1..52</code>, one per byte-pattern of <code>secret</code>.</li>
+</ul>
+
+<h2>The Attack</h2>
+
+<div class="phase">
+    <h3>Phase 1 — Collect the 53 hashes</h3>
+    <p>Send the MD5 padding as <code>obstacle</code> 1000 times. The server returns 53 unique hashes (one per N=0..52), each repeated ~19 times. Build a set of unique hashes for the next phase.</p>
+</div>
+
+<div class="phase">
+    <h3>Phase 2 — Anchor N=0</h3>
+    <p>Apply length extension on <code>bus_id</code> with an empty suffix:</p>
+    <pre><code>h_N0 = md5_extend(bus_id, 52, b"")</code></pre>
+    <p>This is exactly what the server returns when N=0. Remove it from the pool. You now have 52 remaining hashes that correspond to N=1..52.</p>
+</div>
+
+<div class="phase">
+    <h3>Phase 3 — Recover the secret byte-by-byte</h3>
+    <p>For each byte position <code>k = 0..51</code>:</p>
+    <ol>
+        <li>Try all 256 candidate values <code>c</code>.</li>
+        <li>Build the candidate suffix <code>suffix = secret_recovered[:k] + bytes([c])</code>.</li>
+        <li>Predict <code>md5_extend(bus_id, 52, suffix)</code>.</li>
+        <li>If the prediction is in the remaining pool → that's the correct byte.</li>
+        <li>Remove the hash from the pool and continue with byte <code>k+1</code>.</li>
+    </ol>
+    <p>Total predictions: <code>256 × 52 = 13,312</code>. After all 52 bytes, the pool is empty (all 53 hashes accounted for), confirming full recovery.</p>
+</div>
+
+<h2>The Length Extension Primitive</h2>
+<p>A minimal MD5 length-extension function (no external crypto library, ~50 lines):</p>
+<pre><code>def md5_extend(known_hash_hex, known_length, suffix):
+    glue = b'\x80' + b'\x00' * ((56 - (known_length + 1) % 64) % 64)
+    glue += struct.pack('&lt;Q', known_length * 8)
+    state = struct.unpack('&lt;4I', bytes.fromhex(known_hash_hex))
+    total = known_length + len(glue) + len(suffix)
+    new_msg = suffix + b'\x80' + b'\x00' * ((56 - (len(suffix) + 1) % 64) % 64)
+    new_msg += struct.pack('&lt;Q', total * 8)
+    cur = state
+    for i in range(0, len(new_msg), 64):
+        cur = md5_compress(cur, new_msg[i:i+64])
+    return struct.pack('&lt;4I', *cur).hex()</code></pre>
+<p>You only need <code>md5_compress</code> (the 64-round function) — no need to reimplement the full MD5 hash from scratch.</p>
+
+<h2>Verification</h2>
+<p>I tested the attack end-to-end against a local simulated server with <code>urandom(52)</code>:</p>
+<ul>
+    <li>1000 queries → exactly 53 unique hashes ✓</li>
+    <li>N=0 anchored correctly ✓</li>
+    <li>52 bytes recovered byte-by-byte ✓</li>
+    <li>0 hashes remaining at the end ✓</li>
+    <li>Recovered secret matches the real secret exactly ✓</li>
+</ul>
+
+<h2>Real-World Relevance</h2>
+<p>This vulnerability pattern has appeared in production systems:</p>
+<ul>
+    <li><strong>Flickr API signing</strong> — used MD5(secret + msg) signatures, vulnerable to length extension before being patched.</li>
+    <li><strong>AWS S3 signing (early versions)</strong> — similar issue, fixed by switching to HMAC-SHA1.</li>
+    <li><strong>Joomla, PHP-FPM, ISC DHCP</strong> — historical MD5-extension CVEs.</li>
+</ul>
+<p>Modern defenses: use <strong>HMAC</strong>, <strong>SHA-3</strong>, or <strong>BLAKE2</strong> — none of which are vulnerable to length extension. Never expose <code>md5(secret)</code> to the attacker if you also let them append data.</p>
+
+<h2>What I Learned</h2>
+<div class="callout warn">
+    <strong>Post-mortem honesty:</strong> I spent ~5 hours exploring wrong vectors (timing attacks, race conditions, brute force against the random N) before recognising that the construction is <em>exactly</em> the canonical length-extension setup. The sub-agent that I spawned with "fresh eyes" found it in minutes. The lesson: when the server hands you a hash and lets you append arbitrary data, look for the construction first, not the obfuscation.
+</div>
+
+<h2>Related Chain-Cortex Work</h2>
+<ul>
+    <li><a href="ctf-md5-truncated-collision.html">MD5 truncated prefix collision</a> — sister challenge from NavajaNegra 2025</li>
+    <li><a href="ctf-reed-solomon-multisample.html">Reed-Solomon multi-sample recovery</a> — Space_Pinch writeup</li>
+    <li><a href="../index.html#methodology">Methodology catalog</a> — pattern library for crypto CTFs</li>
+</ul>
+
+<footer>
+    <p>Solved by Santi (santilpz28) for Chain-Cortex · Sanitized writeup · Full solver and methodology in private archive.</p>
+</footer>
+
+</div>
+</body>
+</html>
