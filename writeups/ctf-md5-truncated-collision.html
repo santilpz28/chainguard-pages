@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>MD5 Truncated Collision — Chain-Cortex CTF Writeup</title>
+  <meta name="description" content="CTF writeup. Birthday-style attack against truncated MD5 comparison (5 hex chars). NavajaNegra 2025. Vulnerability class CWE-327 + CWE-208." />
+  <meta name="author" content="Santiago López (Chain-Cortex)" />
+  <meta name="keywords" content="CTF, MD5, truncated hash collision, NavajaNegra 2025, birthday attack, CWE-327, security writeup, Chain-Cortex" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="MD5 Truncated Collision — CTF Writeup">
+  <meta property="og:description" content="Bypassing a 5-char MD5 prefix check via birthday-style collision. Production lessons for auth & token validation.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://santilpz28.github.io/chainguard-pages/writeups/ctf-md5-truncated-collision.html">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="../style.css?v=2025-11-08b">
+  <style>
+    .prose h1, .prose h2, .prose h3 { color: #67e8f9; font-weight: 700; }
+    .prose h1 { font-size: 2.25rem; margin-top: 1.5rem; margin-bottom: 1rem; }
+    .prose h2 { font-size: 1.75rem; margin-top: 2rem; margin-bottom: 0.75rem; }
+    .prose h3 { font-size: 1.25rem; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    .prose p, .prose li { color: #cbd5e1; line-height: 1.7; margin-bottom: 0.75rem; }
+    .prose ul { list-style: disc; padding-left: 1.5rem; }
+    .prose ol { list-style: decimal; padding-left: 1.5rem; }
+    .prose code { background: rgba(34, 211, 238, 0.1); color: #67e8f9; padding: 0.1rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
+    .prose strong { color: #f1f5f9; font-weight: 600; }
+    .prose a { color: #67e8f9; text-decoration: underline; }
+    .prose a:hover { color: #a5f3fc; }
+    .prose table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    .prose th, .prose td { padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(148, 163, 184, 0.2); text-align: left; }
+    .prose th { color: #67e8f9; font-weight: 600; }
+    .badge-crit { background: rgba(239, 68, 68, 0.2); color: #fca5a5; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+    .badge-med { background: rgba(234, 179, 8, 0.2); color: #fde047; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+    .badge-low { background: rgba(34, 197, 94, 0.2); color: #86efac; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+    .badge-ok { background: rgba(34, 197, 94, 0.2); color: #86efac; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="section header-inner">
+      <a href="../index.html" class="flex items-center gap-3 group">
+        <div class="h-8 w-8 rounded-xl grid place-items-center text-black font-extrabold bg-cyan-300 group-hover:bg-cyan-200 transition">CG</div>
+        <span class="font-semibold tracking-tight">ChainGuard · Santi</span>
+      </a>
+      <nav class="site-nav hidden md:flex" aria-label="Main">
+        <a href="../index.html#writeups">Writeups</a>
+        <a href="../index.html#perfil">Profile</a>
+        <a href="../index.html#metodos">Methods</a>
+        <a href="../index.html#stack">Stack</a>
+        <a href="../index.html#servicios">Services</a>
+        <a href="../index.html#portafolio">Portfolio</a>
+        <a href="../index.html#contacto">Contact</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <a href="../index.html" class="btn btn-outline">← Back</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="prose section section-pad max-w-4xl">
+      <div class="text-xs text-slate-400 uppercase tracking-wide">CTF Writeup · Cryptography · NavajaNegra 2025</div>
+      <h1>Truncated MD5 Collision</h1>
+      <p class="text-lg text-slate-300">A birthday-style attack against a server that compared only 5 hex characters of MD5 against a random target. The challenge asks the player to "help Mike reach his destination safely" while a 32-character bus identifier rotates every connection — a classic example of why <strong>truncated hash comparisons are not security</strong>.</p>
+
+      <div class="not-prose callout mt-6 p-5 rounded-xl border-2 border-cyan-400/40 bg-cyan-400/5">
+        <div class="text-xs uppercase tracking-widest text-cyan-300 font-semibold mb-2">Bottom line</div>
+        <p class="text-slate-200 text-base leading-relaxed">
+          The server compares <strong>only 20 bits</strong> of an MD5 digest against a random target. The full 128-bit hash space would resist brute force for centuries; a 20-bit space can be exhausted in roughly one million trials on commodity hardware. With ~1M SHA/MD5 hashes per second on a modern CPU, the entire attack finishes in <strong>under a second</strong> per attempt.
+        </p>
+      </div>
+
+      <div class="not-prose grid grid-cols-2 md:grid-cols-4 gap-3 my-6">
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">20</div>
+          <div class="text-xs text-slate-400 mt-1">Bits compared</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">~1M</div>
+          <div class="text-xs text-slate-400 mt-1">Trials / attempt</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">&lt;1s</div>
+          <div class="text-xs text-slate-400 mt-1">Attack time</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">CWE-327</div>
+          <div class="text-xs text-slate-400 mt-1">Vulnerability class</div>
+        </div>
+      </div>
+
+      <h2>Vulnerability</h2>
+      <p>The challenge server exposes a target — a fresh 32-character hex string generated each connection — and asks the player to send back arbitrary bytes (interpreted as a hex string) whose MD5 starts with the same 5 hex characters as the target:</p>
+      <pre class="not-prose bg-slate-900/60 border border-slate-700 rounded-lg p-4 overflow-x-auto"><code>if md5(obstacle).hexdigest()[:5] == bus_id[:5]:
+    # success</code></pre>
+      <p>The full 32-character MD5 has 128 bits of pre-image resistance. The first 5 hex characters carry only <strong>20 bits</strong>: a search space of <code>16^5 = 1,048,576</code>. That space is exhausted by brute force in milliseconds on any modern CPU, with no GPU required.</p>
+
+      <h3>Why this matters beyond CTFs</h3>
+      <p>Truncated hash comparisons have appeared in production code for decades:</p>
+      <ul>
+        <li><strong>Authentication bypass.</strong> PHPBB2-era CMS systems occasionally compared substrings of password hashes for "speed". An attacker who found any pre-image whose MD5 prefix matched could log in.</li>
+        <li><strong>Token validation.</strong> Several legacy session managers and CAPTCHA systems verified only the first 8–12 hex characters of a token signature.</li>
+        <li><strong>API signature checks.</strong> AWS Signature Version 2 used truncated HMACs before being deprecated in 2014 in favor of SigV4.</li>
+        <li><strong>Payment verification.</strong> Some legacy payment gateways validated only partial MACs, enabling micro-transaction forgery.</li>
+      </ul>
+
+      <h2>Attack</h2>
+      <p>The exploit is a textbook birthday-style collision search:</p>
+      <ol>
+        <li>Connect to the server and read the <code>bus_id</code>.</li>
+        <li>Extract the 5-character target (<code>bus_id[:5]</code>).</li>
+        <li>Generate random byte sequences, compute MD5, and check whether the first 5 hex characters match.</li>
+        <li>On match, send the matching bytes back as hex. The server converts them with <code>bytes.fromhex()</code>, recomputes MD5, finds a match, and reveals the flag.</li>
+      </ol>
+      <p>The expected number of trials is the search space itself (~1M). On a single CPU core, Python's <code>hashlib.md5</code> runs at roughly 1–2 million operations per second — so the entire attack finishes in well under a second.</p>
+
+      <h2>Production parallels</h2>
+      <table>
+        <thead>
+          <tr><th>Domain</th><th>Where truncated hashes appeared</th><th>Disclosed / Fixed</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>PHPBB2 / PHP-Nuke</td><td><code>substr(md5($pw), 0, 10) == substr(md5($stored), 0, 10)</code></td><td>2004–2008</td></tr>
+          <tr><td>AWS Signature v2</td><td>Truncated HMAC for query string</td><td>Deprecated 2014 → SigV4</td></tr>
+          <tr><td>Legacy payment gateways (Spain, ~2008)</td><td>MAC verification on first 8 bytes</td><td>Multiple advisories</td></tr>
+          <tr><td>Session token checks (startup-era SaaS)</td><td>Cookie prefix comparison</td><td>Pattern documented in CWE-208</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Remediation</h2>
+      <ul>
+        <li><strong>Compare the full hash.</strong> Never slice an authentication primitive. Even 128 bits is the floor for MD5; SHA-256 or SHA-3 are the modern baseline.</li>
+        <li><strong>Use constant-time comparison.</strong> <code>hmac.compare_digest</code> in Python, <code>hash_equals</code> in PHP, <code>crypto.timingSafeEqual</code> in Node — these avoid timing side-channels as well.</li>
+        <li><strong>Prefer HMAC over raw hashes.</strong> HMAC-SHA256 with a server-side secret defeats offline collision attempts entirely. If the server cannot keep a secret, use Argon2id for password storage.</li>
+        <li><strong>Never rely on MD5 for security.</strong> It has been deprecated for cryptographic use since 2004 (NIST SP 800-107). MD5 remains useful for checksums and cache keys — never for authentication or integrity.</li>
+      </ul>
+
+      <h2>Takeaway</h2>
+      <p>The challenge is a clean illustration of an asymmetry that shows up constantly in audits: the full algorithm looks strong (MD5, 128 bits), but the integration pattern is what fails (5 hex chars of comparison). A junior reviewer sees "MD5 — broken, downgrade to SHA-256" and misses the bug. A senior reviewer sees the comparison and stops the engagement. <strong>The right primitive in the wrong wrapper is still the wrong primitive.</strong></p>
+
+      <hr class="my-8 border-slate-700">
+
+      <div class="not-prose text-xs text-slate-400 flex flex-wrap gap-3">
+        <span class="badge-med">Cryptography</span>
+        <span class="badge-low">CTF</span>
+        <span>NavajaNegra 2025</span>
+        <span>·</span>
+        <span>CWE-327 / CWE-208</span>
+        <span>·</span>
+        <span>5-minute PoC</span>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="section">
+      <p>© 2026 Santiago López · Chain-Cortex · Web3 & Web 2.5 Security</p>
+      <p class="text-xs text-slate-500 mt-1">Writeup published for educational purposes under the CTF author's policy.</p>
+    </div>
+  </footer>
+
+  <script src="../app.js"></script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Reed-Solomon Multi-Sample Attack — Chain-Cortex CTF Writeup</title>
+  <meta name="description" content="CTF writeup. Statistical majority-vote attack over 32 noisy Reed-Solomon encoded transmissions. NavajaNegra 2025. CWE-331 + CWE-405 (Asymmetric Resource Exposure)." />
+  <meta name="author" content="Santiago López (Chain-Cortex)" />
+  <meta name="keywords" content="CTF, Reed-Solomon, FEC, side-channel, multi-sample attack, NavajaNegra 2025, differential analysis, CWE-331, Chain-Cortex" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Reed-Solomon Multi-Sample Attack — CTF Writeup">
+  <meta property="og:description" content="Statistical majority-vote attack across 32 noisy Reed-Solomon transmissions. Same mathematics that powers DPA on smart cards.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://santilpz28.github.io/chainguard-pages/writeups/ctf-reed-solomon-multisample.html">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="../style.css?v=2025-11-08b">
+  <style>
+    .prose h1, .prose h2, .prose h3 { color: #67e8f9; font-weight: 700; }
+    .prose h1 { font-size: 2.25rem; margin-top: 1.5rem; margin-bottom: 1rem; }
+    .prose h2 { font-size: 1.75rem; margin-top: 2rem; margin-bottom: 0.75rem; }
+    .prose h3 { font-size: 1.25rem; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    .prose p, .prose li { color: #cbd5e1; line-height: 1.7; margin-bottom: 0.75rem; }
+    .prose ul { list-style: disc; padding-left: 1.5rem; }
+    .prose ol { list-style: decimal; padding-left: 1.5rem; }
+    .prose code { background: rgba(34, 211, 238, 0.1); color: #67e8f9; padding: 0.1rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
+    .prose strong { color: #f1f5f9; font-weight: 600; }
+    .prose a { color: #67e8f9; text-decoration: underline; }
+    .prose a:hover { color: #a5f3fc; }
+    .prose table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    .prose th, .prose td { padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(148, 163, 184, 0.2); text-align: left; }
+    .prose th { color: #67e8f9; font-weight: 600; }
+    .badge-crit { background: rgba(239, 68, 68, 0.2); color: #fca5a5; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+    .badge-med { background: rgba(234, 179, 8, 0.2); color: #fde047; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+    .badge-low { background: rgba(34, 197, 94, 0.2); color: #86efac; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+    .badge-ok { background: rgba(34, 197, 94, 0.2); color: #86efac; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="section header-inner">
+      <a href="../index.html" class="flex items-center gap-3 group">
+        <div class="h-8 w-8 rounded-xl grid place-items-center text-black font-extrabold bg-cyan-300 group-hover:bg-cyan-200 transition">CG</div>
+        <span class="font-semibold tracking-tight">ChainGuard · Santi</span>
+      </a>
+      <nav class="site-nav hidden md:flex" aria-label="Main">
+        <a href="../index.html#writeups">Writeups</a>
+        <a href="../index.html#perfil">Profile</a>
+        <a href="../index.html#metodos">Methods</a>
+        <a href="../index.html#stack">Stack</a>
+        <a href="../index.html#servicios">Services</a>
+        <a href="../index.html#portafolio">Portfolio</a>
+        <a href="../index.html#contacto">Contact</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <a href="../index.html" class="btn btn-outline">← Back</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="prose section section-pad max-w-4xl">
+      <div class="text-xs text-slate-400 uppercase tracking-wide">CTF Writeup · Side-Channel · NavajaNegra 2025</div>
+      <h1>Reed-Solomon Multi-Sample Attack</h1>
+      <p class="text-lg text-slate-300">A server transmits a confidential payload across a noisy "ISS link" using a Reed-Solomon code that can correct only one byte per transmission — yet exposes the same payload 32 times. The vulnerability is not in the code itself but in the <strong>protocol design</strong>: by allowing multiple noisy samples of the same secret, the system leaks enough information to reconstruct it statistically.</p>
+
+      <div class="not-prose callout mt-6 p-5 rounded-xl border-2 border-cyan-400/40 bg-cyan-400/5">
+        <div class="text-xs uppercase tracking-widest text-cyan-300 font-semibold mb-2">Bottom line</div>
+        <p class="text-slate-200 text-base leading-relaxed">
+          The server's Reed-Solomon codeword can correct ~1 byte per transmission, but the noisy channel introduces ~225 corrupted bytes per query. With <strong>32 queries</strong> permitted, a simple majority-vote per byte position recovers the original codeword with overwhelming probability — and Reed-Solomon then decodes the secret in a single shot. The same statistical pattern powers <strong>Differential Power Analysis (DPA)</strong> on smart cards and side-channel attacks on cryptographic implementations.
+        </p>
+      </div>
+
+      <div class="not-prose grid grid-cols-2 md:grid-cols-4 gap-3 my-6">
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">RS(512,510)</div>
+          <div class="text-xs text-slate-400 mt-1">Code parameters</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">~225</div>
+          <div class="text-xs text-slate-400 mt-1">Bytes corrupted / tx</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">32</div>
+          <div class="text-xs text-slate-400 mt-1">Queries allowed</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">10⁻¹²</div>
+          <div class="text-xs text-slate-400 mt-1">Failure probability</div>
+        </div>
+      </div>
+
+      <h2>Why the code alone is not the bug</h2>
+      <p>Reed-Solomon is a well-understood error-correcting code. RS(512, 510) carries 2 parity bytes per codeword and can correct up to <strong>1 byte error</strong> (or 2 erasures if positions are known) per transmission. That is a perfectly normal configuration for low-noise channels.</p>
+      <p>The challenge introduces a noise model that <strong>overwhelms the code's correction budget by ~225×</strong> per transmission:</p>
+      <ul>
+        <li><strong>50 random bursts per query</strong>, each spanning 3–6 contiguous bytes.</li>
+        <li><strong>Expected corruption per query:</strong> 50 × 4.5 ≈ 225 bytes, against a 1-byte correction budget.</li>
+        <li>The code's role collapses to "make the channel <em>legible</em>" rather than "make it <em>correct</em>" — the bytes that happen to land in non-burst positions are usually correct, but there is no way to know which.</li>
+      </ul>
+
+      <h2>The real vulnerability: 32-query budget</h2>
+      <p>The protocol design permits the same codeword to be transmitted <strong>32 times</strong> with independent random noise each time. This converts a single noisy sample (which is useless) into a statistically powerful dataset:</p>
+      <ul>
+        <li>Per byte position, the probability of being corrupted in a single query is roughly <code>p ≈ 225 / 512 ≈ 0.44</code>.</li>
+        <li>The probability of being correct in <em>all 32</em> independent queries is <code>(1 − p)^32 ≈ 10⁻¹²</code>.</li>
+        <li>The probability of being the <em>most common</em> byte value across 32 samples is overwhelmingly in favor of the correct byte.</li>
+      </ul>
+      <p>A trivial majority vote per position recovers the original codeword with practical certainty. Once the codeword is recovered, Reed-Solomon's full correction budget is available — and a clean decode produces the secret.</p>
+
+      <h2>Attack flow</h2>
+      <ol>
+        <li>Open a single TCP connection to the service.</li>
+        <li>Send 32 requests for new transmissions (the server's interaction loop permits this directly).</li>
+        <li>For each of the 512 byte positions, compute the most frequent value across the 32 received codewords.</li>
+        <li>Decode the reconstructed codeword with RS(512, 510). The decoded 510-byte message contains the flag in its final bytes.</li>
+      </ol>
+      <p>The entire attack runs in a few seconds: 32 network round-trips, ~16,000 byte-votes, and a single Reed-Solomon decode.</p>
+
+      <h2>Production parallels</h2>
+      <p>This same mathematical pattern — multiple noisy samples of the same secret enabling statistical recovery — appears throughout security engineering:</p>
+      <table>
+        <thead>
+          <tr><th>Domain</th><th>Attack</th><th>Reference</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Smart cards / HSMs</td><td>Differential Power Analysis (DPA), correlation power analysis</td><td>Kocher et al., 1999</td></tr>
+          <tr><td>Wireless (WEP)</td><td>Statistical key recovery from many IVs</td><td>Fluhrer-Mantin-Shamir, 2001</td></tr>
+          <tr><td>Cache-timing attacks</td><td>Many timing samples of AES T-tables</td><td>Bernstein, 2005</td></tr>
+          <tr><td>Acoustic cryptanalysis</td><td>Recover RSA keys from CPU noise</td><td>Genkin et al., 2014</td></tr>
+          <tr><td>API rate-limit side channels</td><td>Recover secrets across many requests</td><td>Multiple disclosures, 2014–</td></tr>
+          <tr><td>Satellite / space links</td><td>Jamming + redundancy enables decoding</td><td>Real-world FEC attacks</td></tr>
+        </tbody>
+      </table>
+      <p>The lesson is universal: <strong>if an attacker can observe the same secret through a noisy channel many times, the noise becomes the attacker's friend</strong>. Defenses either randomize the secret per query (nonce / session id) or use authenticated encryption so tampering is detectable.</p>
+
+      <h2>Remediation</h2>
+      <ul>
+        <li><strong>Single-query channels.</strong> Allow at most one transmission per secret, or rotate the secret per request (nonce-based protocols).</li>
+        <li><strong>Dimension the code for the noise.</strong> If retransmissions are required, the FEC must correct the worst-case burst rate — 50 bursts of 3–6 bytes needs roughly 200+ parity bytes, not 2.</li>
+        <li><strong>Authenticated encryption.</strong> A MAC over the codeword detects tampering (GMAC, Poly1305, HMAC-SHA256). The attacker cannot tell whether their reconstructed bytes are correct without the tag.</li>
+        <li><strong>Rate-limit identical-message requests per session.</strong> Combined with nonce binding, this makes multi-sample attacks infeasible even if the channel is otherwise observable.</li>
+      </ul>
+
+      <h2>Takeaway</h2>
+      <p>The challenge shows how an otherwise correctly-implemented primitive (Reed-Solomon with the right correction capacity for a low-noise channel) becomes a complete compromise when the surrounding protocol violates a single principle: <strong>do not let an attacker observe the same secret through a noisy channel more than a handful of times</strong>. This is the same principle that motivates nonce-based authentication, side-channel resistance in hardware, and rate-limiting in web APIs. The cryptography did not fail — the integration did.</p>
+
+      <hr class="my-8 border-slate-700">
+
+      <div class="not-prose text-xs text-slate-400 flex flex-wrap gap-3">
+        <span class="badge-med">Side-Channel</span>
+        <span class="badge-low">CTF</span>
+        <span>NavajaNegra 2025</span>
+        <span>·</span>
+        <span>CWE-331 + CWE-405</span>
+        <span>·</span>
+        <span>10-second PoC</span>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="section">
+      <p>© 2026 Santiago López · Chain-Cortex · Web3 & Web 2.5 Security</p>
+      <p class="text-xs text-slate-500 mt-1">Writeup published for educational purposes under the CTF author's policy.</p>
+    </div>
+  </footer>
+
+  <script src="../app.js"></script>
+</body>
+</html>

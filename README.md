@@ -20,6 +20,10 @@ The marketing layer for **Chain-Cortex** — a Web3 security studio by **Santiag
 
 **Recent work**: independent two-axis security audit of [The Graph Protocol](writeups/graph-protocol-audit.html) — score **8.2 / 10**, 0 critical, 10 real findings across 1,606 raw Slither reports.
 
+**CTF writeups (NavajaNegra 2025 · Caliphal Labs)**:
+- [MD5 Truncated Collision](writeups/ctf-md5-truncated-collision.html) — birthday attack against a 5-char MD5 prefix check.
+- [Reed-Solomon Multi-Sample Attack](writeups/ctf-reed-solomon-multisample.html) — statistical majority-vote recovery across 32 noisy transmissions.
+
 ---
 
 ## ✨ Design (v3 — 2026-06-20)
