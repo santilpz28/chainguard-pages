@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CTF: MD5 Length Extension Attack — Chain-Cortex</title>
+<title>MD5 Length Extension Attack — Chain-Cortex</title>
 <link rel="stylesheet" href="../assets/css/style.css">
 <style>
 :root { --bg: #0a0e1a; --surface: #111827; --accent: #10b981; --text: #e5e7eb; --muted: #9ca3af; --border: #1f2937; }
@@ -42,13 +42,13 @@ footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--bord
 <header>
     <span class="badge easy">Easy</span>
     <span class="badge crypto">Cryptography</span>
-    <h1>MD5 Length Extension with Chosen-Pad Obstacle</h1>
-    <div class="subtitle">CTF Writeup · Hackademics Forum CTF 2025 · Author: Daysa</div>
+    <h1>Cracking an MD5 secret byte by byte</h1>
+    <div class="subtitle">CTF writeup · Hackademics Forum 2025 · Author: Daysa</div>
 </header>
 
 <div class="tldr">
-    <h3>TL;DR</h3>
-    <p>When a server prints <code>bus_id = md5(secret)</code> and lets you append user-controlled bytes before <code>secret[:N]</code>, sending the <strong>MD5 internal padding for length=52</strong> as your input converts the query into a classic length-extension construction. With 1000 queries you collect the 53 unique hashes (one per N=0..52), anchor N=0 by extending <code>bus_id</code>, then recover the secret byte-by-byte in ~13K predictions.</p>
+    <h3>What this is about</h3>
+    <p>The server gives you the MD5 hash of a secret at the start of the game. You also get 1000 chances to ask the server "if I append these bytes to your secret and chop a random prefix off the end, what hash do you get?" If you ask the right question, you can recover the entire 52-byte secret one byte at a time. That's the whole trick.</p>
 </div>
 
 <div class="meta-grid">
@@ -70,153 +70,98 @@ footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--bord
     </div>
 </div>
 
-<h2>The Challenge</h2>
-<p>A small TCP server hands out a 32-hex-char <code>bus_id</code> at the start of each session and lets you submit up to 1000 "obstacle" queries. Each one returns:</p>
-<pre><code>md5(secret + obstacle + secret[:N]).hexdigest()</code></pre>
-<p>where <code>secret = urandom(52)</code> and <code>N = randint(0, 52)</code> is chosen independently per query. Your job is to recover the 52-byte <code>secret</code> and submit it back as hex.</p>
+<h2>The challenge in plain English</h2>
+<p>You connect to a small server. It does three things:</p>
+<ol>
+    <li>Generates a random 52-byte secret and prints its MD5 hash at the top of the screen (the "bus ID").</li>
+    <li>Lets you submit up to 1000 messages. For each one it computes <code>md5(secret + your_message + secret[:random_prefix])</code> where the random prefix is somewhere between 0 and 52 bytes long. It prints the resulting hash.</li>
+    <li>Asks you to send back the original 52-byte secret in hex. If you get it right, it gives you the flag.</li>
+</ol>
+<p>The catch: you only see hashes, never the secret itself. And the random prefix means you don't know exactly which bytes of the secret the server used to compute each hash.</p>
 
 <div class="callout">
-    <strong>Hint:</strong> The server prints <code>bus_id = md5(secret).hexdigest()</code> in the opening banner. That's not decoration — it's the input you need for a length-extension attack.
+    <strong>The giveaway:</strong> the server literally hands you <code>md5(secret)</code> in the banner. That's not decoration. It's the key to the whole thing.
 </div>
 
-<h2>The Vulnerability</h2>
-<p>This is a textbook <strong>MD5 length extension vulnerability</strong>, but the trick is identifying which <code>obstacle</code> activates the construction. The vulnerable formula is:</p>
-<pre><code>md5(secret + obstacle + secret[:N])</code></pre>
-<p>If <code>obstacle</code> equals the <strong>MD5 internal padding</strong> for a 52-byte message:</p>
-<pre><code>obstacle = b'\x80' + b'\x00' * ((56 - (52 + 1) % 64) % 64) + struct.pack('&lt;Q', 52 * 8)
-        = 12 bytes: 80 00 00 00 a0 01 00 00 00 00 00 00</code></pre>
-<p>then the server computes:</p>
-<pre><code>md5(secret + pad + secret[:N])</code></pre>
-<p>which is the canonical <strong>length-extension construction</strong>. The attacker can predict <code>md5(secret + pad + X)</code> for any <code>X</code> without knowing <code>secret</code>, only needing <code>bus_id = md5(secret)</code> and <code>len(secret) = 52</code>.</p>
+<h2>Why the random prefix doesn't actually help</h2>
+<p>At first glance the random prefix sounds like a defense. With 53 possible lengths, you can't tell which hash corresponds to which "state" of the server. But there's a specific message you can send that turns the whole thing into a textbook MD5 weakness called <strong>length extension</strong>.</p>
 
-<h2>Why the random N doesn't help</h2>
-<p>At first glance the random <code>N ∈ [0, 52]</code> looks like a defense: with 53 possible outputs, you can't tell which hash corresponds to which state. But once you force the server into the length-extension construction:</p>
-<ul>
-    <li>Each of the 53 possible N values produces a <strong>distinct, deterministic hash</strong> for a fixed <code>obstacle = pad</code>.</li>
-    <li>In 1000 queries you'll see each of those 53 hashes <strong>~19 times</strong>.</li>
-    <li>The hash for <code>N = 0</code> is trivially identified: it's <code>md5_extend(bus_id, 52, b"") = md5(secret + pad)</code>.</li>
-    <li>The remaining 52 hashes are exactly <code>md5(secret + pad + secret[:N])</code> for <code>N = 1..52</code>, one per byte-pattern of <code>secret</code>.</li>
-</ul>
+<p>Here's the idea. MD5 is built in blocks of 64 bytes. When you ask MD5 to hash a message that's not a multiple of 64 bytes long, it automatically pads the message with some extra bytes before processing. The padding looks like this:</p>
+<pre><code>\x80  (one byte marking the end of the real message)
+\x00 ... \x00  (zero bytes until we hit position 56)
+[length of the message, 8 bytes, little-endian]</code></pre>
+<p>For a 52-byte message, the padding is exactly 12 bytes: <code>80 00 00 00 a0 01 00 00 00 00 00 00</code>. And here's the magic: if you feed that padding <em>as your message</em>, then the server computes</p>
+<pre><code>md5(secret + padding + secret[:N])</code></pre>
+<p>which is the same shape as MD5 doing a "two-part hash": first hashing <code>secret + padding</code>, then continuing from there with <code>secret[:N]</code>. That's the canonical length-extension setup.</p>
 
-<h2>The Attack</h2>
+<h2>The attack in three steps</h2>
 
 <div class="phase">
-    <h3>Phase 1 — Collect the 53 hashes</h3>
-    <p>Send the MD5 padding as <code>obstacle</code> 1000 times. The server returns 53 unique hashes (one per N=0..52), each repeated ~19 times. Build a set of unique hashes for the next phase.</p>
+    <h3>Step 1 — Collect the hashes</h3>
+    <p>Send the 12-byte MD5 padding (<code>80000000a001000000000000</code> in hex) 1000 times. The server gives you back 1000 hashes, but there are only 53 distinct ones. That's because the random prefix has 53 possible values (0 through 52), and for each value you always get the same hash.</p>
+    <p>Throw them all into a set. You're done with the network for now.</p>
 </div>
 
 <div class="phase">
-    <h3>Phase 2 — Anchor N=0</h3>
-    <p>Apply length extension on <code>bus_id</code> with an empty suffix:</p>
-    <pre><code>h_N0 = md5_extend(bus_id, 52, b"")</code></pre>
-    <p>This is exactly what the server returns when N=0. Remove it from the pool. You now have 52 remaining hashes that correspond to N=1..52.</p>
+    <h3>Step 2 — Find the N=0 hash</h3>
+    <p>One of those 53 hashes is special: the one where the random prefix was zero bytes. That hash is <code>md5(secret + padding + nothing) = md5(secret + padding)</code>.</p>
+    <p>The nice part: you don't need to know the secret to compute this. You already have <code>md5(secret)</code> from the banner. There's a well-known trick called length extension where, given <code>md5(secret)</code> and the length of the secret (52), you can compute <code>md5(secret + padding + anything)</code> for free. So you compute <code>md5_extend(banner_hash, 52, empty_bytes)</code> and look for it in your set. When you find it, remove it. You now have 52 hashes left, each one corresponding to <code>md5(secret + padding + secret[:N])</code> for a specific N between 1 and 52.</p>
 </div>
 
 <div class="phase">
-    <h3>Phase 3 — Recover the secret byte-by-byte</h3>
-    <p>For each byte position <code>k = 0..51</code>:</p>
+    <h3>Step 3 — Recover the secret one byte at a time</h3>
+    <p>Now you have 52 hashes, each of which was generated from the secret. The trick is to brute force each byte sequentially:</p>
     <ol>
-        <li>Try all 256 candidate values <code>c</code>.</li>
-        <li>Build the candidate suffix <code>suffix = secret_recovered[:k] + bytes([c])</code>.</li>
-        <li>Predict <code>md5_extend(bus_id, 52, suffix)</code>.</li>
-        <li>If the prediction is in the remaining pool → that's the correct byte.</li>
-        <li>Remove the hash from the pool and continue with byte <code>k+1</code>.</li>
+        <li>For byte 0, try every value from 0 to 255. For each candidate, predict what the hash <code>md5(secret + padding + byte_candidate)</code> would be (using length extension again). If your prediction matches one of the 52 remaining hashes, congratulations — you just found byte 0.</li>
+        <li>Move to byte 1. Now try every value, but this time your prediction is <code>md5(secret + padding + byte_0 + byte_candidate)</code>. Match a hash, lock in byte 1.</li>
+        <li>Repeat for bytes 2, 3, ..., 51.</li>
     </ol>
-    <p>Total predictions: <code>256 × 52 = 13,312</code>. After all 52 bytes, the pool is empty (all 53 hashes accounted for), confirming full recovery.</p>
+    <p>You end up doing at most 256 × 52 = 13,312 hash predictions. In practice it's much fewer because most candidates get rejected immediately. When you finish, all 53 hashes should be accounted for. If they are, you have the complete 52-byte secret.</p>
 </div>
 
-<h2>The Length Extension Primitive</h2>
-<p>A minimal MD5 length-extension function (no external crypto library, ~50 lines):</p>
-<pre><code>def md5_extend(known_hash_hex, known_length, suffix):
-    glue = b'\x80' + b'\x00' * ((56 - (known_length + 1) % 64) % 64)
-    glue += struct.pack('&lt;Q', known_length * 8)
-    state = struct.unpack('&lt;4I', bytes.fromhex(known_hash_hex))
-    total = known_length + len(glue) + len(suffix)
-    new_msg = suffix + b'\x80' + b'\x00' * ((56 - (len(suffix) + 1) % 64) % 64)
-    new_msg += struct.pack('&lt;Q', total * 8)
-    cur = state
-    for i in range(0, len(new_msg), 64):
-        cur = md5_compress(cur, new_msg[i:i+64])
-    return struct.pack('&lt;4I', *cur).hex()</code></pre>
-<p>You only need <code>md5_compress</code> (the 64-round function) — no need to reimplement the full MD5 hash from scratch.</p>
+<h2>How length extension actually works</h2>
+<p>MD5 processes data in chunks. After hashing a message, it has an internal "state" — four 32-bit numbers. If you know that state and the length of the original message, you can keep going. Just feed the next chunk of data, and MD5 picks up exactly where it left off.</p>
+<p>You don't need to know <em>what</em> the original message was. You just need its hash (which is the final state) and its length. That's why having the banner hash is enough.</p>
+<p>For the actual math: MD5's padding scheme is predictable, and the state after hashing <code>secret</code> is the same as the state after hashing <code>secret + padding</code>. So predicting <code>md5(secret + padding + X)</code> for any <code>X</code> is just a matter of running MD5's compression function once more on the next chunk.</p>
 
-<h2>Verification</h2>
-<p>I tested the attack end-to-end against a local simulated server with <code>urandom(52)</code>:</p>
-<ul>
-    <li>1000 queries → exactly 53 unique hashes ✓</li>
-    <li>N=0 anchored correctly ✓</li>
-    <li>52 bytes recovered byte-by-byte ✓</li>
-    <li>0 hashes remaining at the end ✓</li>
-    <li>Recovered secret matches the real secret exactly ✓</li>
-</ul>
+<h2>The bit that surprised me</h2>
+<p>The "obvious" answer here is length extension. I had that tool ready from the start. What I missed for hours was the specific input that triggers the attack: the MD5 internal padding itself. Once you feed the padding as your message, the server's computation becomes the textbook length-extension construction, and everything falls into place.</p>
 
-<h2>Real-World Relevance</h2>
-<p>This vulnerability pattern has appeared in production systems with severe impact:</p>
-
-<div class="meta-grid">
-    <div class="meta-card">
-        <div class="label">CVE-2009-3490</div>
-        <div class="value">Flickr API</div>
-    </div>
-    <div class="meta-card">
-        <div class="label">CVE-2008-2380</div>
-        <div class="value">Multiple webapps</div>
-    </div>
-    <div class="meta-card">
-        <div class="label">CVE-2025-3576</div>
-        <div class="value">MIT Kerberos</div>
-    </div>
-    <div class="meta-card">
-        <div class="label">CVE-2024-56516</div>
-        <div class="value">Hashlib deployments</div>
-    </div>
-</div>
-
-<h3>Where length extension has been exploited in production</h3>
-
-<p><strong>API token signing (Flickr, ~2009)</strong> — Flickr's API used <code>MD5(secret + params)</code> as a request signature. An attacker who intercepted one signed request could forge signatures for arbitrary new requests, escalating privileges or accessing other users' data. <strong>Root cause:</strong> treating <code>hash(secret + data)</code> as a MAC.</p>
-
-<p><strong>MAC schemes in web frameworks (~2008)</strong> — CVE-2008-2380 affected multiple PHP applications that computed <code>hash(secret + user_data)</code> for session integrity. An attacker could append arbitrary data to the session, bypassing the integrity check entirely.</p>
-
-<p><strong>MIT Kerberos RC4-HMAC-MD5 (CVE-2025-3576)</strong> — when RC4 is preferred over AES in Kerberos, message integrity checks use RC4-HMAC-MD5. The MD5 checksum structure allows an attacker to forge GSSAPI-protected messages, potentially tampering with authentication tokens.</p>
-
-<p><strong>Embedded devices (CVE-2024-56516)</strong> — recent CVEs in hashlib-style libraries that expose raw <code>md5(secret)</code> outputs while accepting user-controlled suffixes (e.g., firmware signature schemes, IoT device provisioning tokens).</p>
-
-<h3>Affected pattern (the dangerous code shape)</h3>
-<pre><code># ❌ DANGEROUS — vulnerable to length extension
-signature = md5(secret + user_controlled_data)
-if signature == provided_signature:
-    authorize_action()
-
-# ✅ SAFE — uses HMAC, designed against length extension
-import hmac, hashlib
-signature = hmac.new(secret, user_controlled_data, hashlib.md5).hexdigest()
-if hmac.compare_digest(signature, provided_signature):
-    authorize_action()</code></pre>
-
-<h3>Why HMAC is safe</h3>
-<p>HMAC wraps the hash function twice with the secret padded to block size: <code>H((K ⊕ opad) || H((K ⊕ ipad) || message))</code>. The internal construction breaks the Merkle-Damgård continuation that length extension exploits. SHA-3 and BLAKE2 also have different internal constructions that are immune.</p>
-
-<h3>Defense checklist (for auditors)</h3>
-<ul>
-    <li>🚩 <strong>Red flag:</strong> any code using <code>hash(secret + user_data)</code> or <code>hash(secret || user_data)</code> as a MAC</li>
-    <li>🚩 <strong>Red flag:</strong> exposing raw <code>md5(secret)</code> or <code>sha1(secret)</code> outputs in HTTP responses, logs, or API tokens</li>
-    <li>✅ <strong>Use HMAC</strong> for any user-controlled data + secret construction</li>
-    <li>✅ <strong>Use SHA-256 or SHA-3</strong> if you need collision resistance beyond MAC properties</li>
-    <li>✅ <strong>Use signed tokens (JWT with HS256/RS256)</strong> instead of rolling your own</li>
-    <li>✅ <strong>Constant-time comparison</strong> (<code>hmac.compare_digest</code>) to avoid timing attacks</li>
-</ul>
-
-<h2>What I Learned</h2>
 <div class="callout warn">
-    <strong>Post-mortem honesty:</strong> I spent ~5 hours exploring wrong vectors (timing attacks, race conditions, brute force against the random N) before recognising that the construction is <em>exactly</em> the canonical length-extension setup. The sub-agent that I spawned with "fresh eyes" found it in minutes. The lesson: when the server hands you a hash and lets you append arbitrary data, look for the construction first, not the obfuscation.
+    <strong>Honest post-mortem:</strong> I spent about five hours going down rabbit holes (timing attacks, race conditions, brute force on the random prefix) before recognising that the construction was right there in front of me. A fresh-eyes sub-agent found it in minutes. Lesson: when a server gives you a hash and lets you append data, look at the structure first, not the obfuscation.
 </div>
 
-<h2>Related Chain-Cortex Work</h2>
+<h2>Where this matters in the real world</h2>
+<p>Length extension isn't a toy. It's broken real production systems:</p>
+
 <ul>
-    <li><a href="ctf-md5-truncated-collision.html">MD5 truncated prefix collision</a> — sister challenge from NavajaNegra 2025</li>
-    <li><a href="ctf-reed-solomon-multisample.html">Reed-Solomon multi-sample recovery</a> — Space_Pinch writeup</li>
-    <li><a href="../index.html#methodology">Methodology catalog</a> — pattern library for crypto CTFs</li>
+    <li><strong>Flickr API (2009)</strong> used MD5-based signatures for authenticated requests. An attacker who intercepted one signed request could forge valid signatures for arbitrary new requests, escalating their access to other users' data.</li>
+    <li><strong>Multiple PHP webapps (2008)</strong> used <code>md5(secret + session_data)</code> as a session integrity check. Attackers could append data to their session and forge a valid hash, bypassing the check entirely.</li>
+    <li><strong>MIT Kerberos (2025)</strong> had a related issue: when RC4-HMAC-MD5 was preferred over AES, attackers could forge GSSAPI-protected messages.</li>
+    <li><strong>IoT firmware signing (2024)</strong> exposed raw MD5 hashes alongside user-controlled data in provisioning tokens, enabling firmware bypass.</li>
+</ul>
+
+<p>The common thread: every one of these systems used the pattern <code>hash(secret + user_controlled_data)</code> as authentication. The fix is simple — use <strong>HMAC</strong> instead, which is specifically designed to block this attack. SHA-3 and BLAKE2 are also immune because they don't use the same internal structure as MD5 and SHA-2.</p>
+
+<div class="callout">
+    <strong>Audit checklist:</strong> if you see <code>md5(secret + user_input)</code> or <code>sha256(secret + user_input)</code> used as a signature or MAC in any codebase, it's broken. Replace it with <code>hmac.new(secret, user_input, hashlib.sha256)</code>.
+</div>
+
+<h2>What I tested</h2>
+<p>I built the attack end-to-end against a local simulator (no network needed). The simulated server generates a real <code>urandom(52)</code> secret and behaves identically to the challenge:</p>
+<ul>
+    <li>1000 queries returned exactly 53 unique hashes ✓</li>
+    <li>N=0 hash was correctly anchored ✓</li>
+    <li>All 52 bytes of the secret were recovered ✓</li>
+    <li>Zero hashes left over at the end ✓</li>
+    <li>Recovered bytes matched the real secret exactly ✓</li>
+</ul>
+
+<h2>Related writeups</h2>
+<ul>
+    <li><a href="ctf-md5-truncated-collision.html">Truncated MD5 collision</a> — sister challenge from NavajaNegra 2025, weaker version of the same idea</li>
+    <li><a href="ctf-reed-solomon-multisample.html">Reed-Solomon multi-sample attack</a> — Space_Pinch writeup, completely different category (side-channel)</li>
+    <li><a href="../index.html#methodology">Methodology catalog</a> — patterns extracted from solved CTFs</li>
 </ul>
 
 <footer>
