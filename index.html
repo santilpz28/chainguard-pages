@@ -205,18 +205,18 @@
               <span class="dot">·</span>
               <span>Caliphal Labs</span>
             </div>
-            <h3 class="writeup-title">MD5 Truncated Collision — CTF writeup</h3>
-            <p class="writeup-desc">Birthday-style attack against a server that compared only 20 bits of MD5 against a random target. Lessons for auth, tokens, and signature validation.</p>
+            <h3 class="writeup-title">When MD5 is fine but the comparison is broken — CTF writeup</h3>
+            <p class="writeup-desc">A server compares only the first 5 characters of an MD5 hash. That's 20 bits of entropy, brute-forceable in under a second. The lesson: how you compare a hash matters as much as which hash you pick.</p>
             <div class="writeup-tags">
               <span class="chip">MD5</span>
-              <span class="chip">CWE-327</span>
-              <span class="chip">CWE-208</span>
-              <span class="chip">Birthday attack</span>
+              <span class="chip">Truncation</span>
+              <span class="chip">Sub-second</span>
+              <span class="chip">Auth bypass</span>
             </div>
             <div class="writeup-footer">
               <div class="writeup-score">
                 <span class="label">Class</span>
-                <span>Auth bypass</span>
+                <span>Crypto</span>
               </div>
               <div class="writeup-cta">Read writeup <span>→</span></div>
             </div>
@@ -238,18 +238,18 @@
               <span class="dot">·</span>
               <span>Caliphal Labs</span>
             </div>
-            <h3 class="writeup-title">Reed-Solomon Multi-Sample Attack — CTF writeup</h3>
-            <p class="writeup-desc">Statistical majority-vote attack across 32 noisy Reed-Solomon transmissions. Same math as DPA on smart cards. CWE-331 + CWE-405.</p>
+            <h3 class="writeup-title">When the same secret leaks 32 times — CTF writeup</h3>
+            <p class="writeup-desc">Each noisy copy is useless on its own. But the server lets you ask 32 times, so a simple majority vote across all copies recovers the original secret. Same pattern as DPA on smart cards.</p>
             <div class="writeup-tags">
               <span class="chip">Reed-Solomon</span>
-              <span class="chip">FEC</span>
-              <span class="chip">DPA</span>
-              <span class="chip">CWE-405</span>
+              <span class="chip">Side-channel</span>
+              <span class="chip">Multi-sample</span>
+              <span class="chip">10-second PoC</span>
             </div>
             <div class="writeup-footer">
               <div class="writeup-score">
                 <span class="label">Class</span>
-                <span>Multi-sample</span>
+                <span>Side-channel</span>
               </div>
               <div class="writeup-cta">Read writeup <span>→</span></div>
             </div>
