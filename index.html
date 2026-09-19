@@ -190,6 +190,39 @@
       </div>
 
       <div class="writeup-grid">
+        <a href="writeups/ctf-mvp-cert-aes.html" class="writeup-card">
+          <div class="writeup-cover" style="background:linear-gradient(135deg,#1a1d0e,#26300f)">
+            <div class="writeup-cover-icon" style="color:#a3e635;text-shadow:0 0 30px rgba(163,230,53,0.4);">
+              <small>CTF · 2026-09-19</small>
+              RE
+            </div>
+          </div>
+          <div class="writeup-body">
+            <div class="writeup-meta">
+              <span class="chip" style="background:rgba(163,230,53,0.15);color:#a3e635;">Reverse</span>
+              <span class="dot">·</span>
+              <span>RootedCON 2026</span>
+              <span class="dot">·</span>
+              <span>Caliphal Labs</span>
+            </div>
+            <h3 class="writeup-title">MVP — Censored by Authenticode, decrypted with AES — CTF writeup</h3>
+            <p class="writeup-desc">A Windows PE hides its real payload inside its own Authenticode certificate, encrypted with AES-256-CBC. Static analysis of the loader + key derivation reveals the inner PE in 3 minutes.</p>
+            <div class="writeup-tags">
+              <span class="chip">Authenticode</span>
+              <span class="chip">AES-256-CBC</span>
+              <span class="chip">BCrypt</span>
+              <span class="chip">ImageGetCertificateData</span>
+            </div>
+            <div class="writeup-footer">
+              <div class="writeup-score">
+                <span class="label">Class</span>
+                <span>Reverse</span>
+              </div>
+              <div class="writeup-cta">Read writeup <span>→</span></div>
+            </div>
+          </div>
+        </a>
+
         <a href="writeups/ctf-md5-truncated-collision.html" class="writeup-card">
           <div class="writeup-cover" style="background:linear-gradient(135deg,#1a0e1d,#260f1a)">
             <div class="writeup-cover-icon" style="color:#fca5a5;text-shadow:0 0 30px rgba(252,165,165,0.35);">

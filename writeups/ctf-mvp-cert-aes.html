@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>MVP — Censored by Authenticode, decrypted with AES — Chain-Cortex CTF Writeup</title>
+  <meta name="description" content="CTF writeup. A Windows PE that 'censored' its real idea by encrypting another executable with AES-256-CBC and hiding the ciphertext inside its own Authenticode certificate. Reverse engineering the loader recovers the inner PE in seconds. RootedCON 2026." />
+  <meta name="author" content="Santiago López (Chain-Cortex)" />
+  <meta name="keywords" content="CTF, reverse engineering, Authenticode, AES-256-CBC, ImageGetCertificateData, BCrypt, RootedCON 2026, Securiters, Caliphal Labs" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="MVP — Censored by Authenticode, decrypted with AES — CTF Writeup">
+  <meta property="og:description" content="A Windows executable hides its real payload inside its own Authenticode certificate, encrypted with AES-256-CBC. Static analysis of the loader + key derivation reveals everything.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://santilpz28.github.io/chainguard-pages/writeups/ctf-mvp-cert-aes.html">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="../style.css?v=2026-09-19">
+  <style>
+    .prose h1, .prose h2, .prose h3 { color: #67e8f9; font-weight: 700; }
+    .prose h1 { font-size: 2.25rem; margin-top: 1.5rem; margin-bottom: 1rem; }
+    .prose h2 { font-size: 1.75rem; margin-top: 2rem; margin-bottom: 0.75rem; }
+    .prose h3 { font-size: 1.25rem; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    .prose p, .prose li { color: #cbd5e1; line-height: 1.7; margin-bottom: 0.75rem; }
+    .prose ul { list-style: disc; padding-left: 1.5rem; }
+    .prose ol { list-style: decimal; padding-left: 1.5rem; }
+    .prose code { background: rgba(34, 211, 238, 0.1); color: #67e8f9; padding: 0.1rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
+    .prose strong { color: #f1f5f9; font-weight: 600; }
+    .prose a { color: #67e8f9; text-decoration: underline; }
+    .prose a:hover { color: #a5f3fc; }
+    .prose table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    .prose th, .prose td { padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(148, 163, 184, 0.2); text-align: left; }
+    .prose th { color: #67e8f9; font-weight: 600; }
+    .badge-crit { background: rgba(239, 68, 68, 0.2); color: #fca5a5; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+    .badge-med { background: rgba(234, 179, 8, 0.2); color: #fde047; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+    .badge-low { background: rgba(34, 197, 94, 0.2); color: #86efac; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+    .badge-ok { background: rgba(34, 197, 94, 0.2); color: #86efac; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="section header-inner">
+      <a href="../index.html" class="flex items-center gap-3 group">
+        <div class="h-8 w-8 rounded-xl grid place-items-center text-black font-extrabold bg-cyan-300 group-hover:bg-cyan-200 transition">CG</div>
+        <span class="font-semibold tracking-tight">ChainGuard · Santi</span>
+      </a>
+      <nav class="site-nav hidden md:flex" aria-label="Main">
+        <a href="../index.html#writeups">Writeups</a>
+        <a href="../index.html#perfil">Profile</a>
+        <a href="../index.html#metodos">Methods</a>
+        <a href="../index.html#stack">Stack</a>
+        <a href="../index.html#servicios">Services</a>
+        <a href="../index.html#portafolio">Portfolio</a>
+        <a href="../index.html#contacto">Contact</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <a href="../index.html" class="btn btn-outline">← Back</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="prose section section-pad max-w-4xl">
+      <div class="text-xs text-slate-400 uppercase tracking-wide">CTF Writeup · Reverse Engineering · RootedCON 2026</div>
+      <h1>MVP — Censored by Authenticode, decrypted with AES</h1>
+      <p class="text-lg text-slate-300">A startup wants to launch a Minimum Viable Product but worries that someone will steal the idea, so they "censor" it. The censorship turns out to be: take the real binary, encrypt it with AES-256-CBC, and stuff the ciphertext into the Authenticode certificate of the outer binary. The loader reads its own cert with <code>ImageGetCertificateData</code>, decrypts the payload with BCrypt, writes it to a temp file, and runs it. Static analysis of the loader recovers the inner PE in seconds.</p>
+
+      <div class="not-prose callout mt-6 p-5 rounded-xl border-2 border-cyan-400/40 bg-cyan-400/5">
+        <div class="text-xs uppercase tracking-widest text-cyan-300 font-semibold mb-2">Bottom line</div>
+        <p class="text-slate-200 text-base leading-relaxed">
+          The outer <code>mvp.exe</code> is a 128&nbsp;KB MinGW-built PE that does only one useful thing: read its own Authenticode overlay starting at offset <code>0x5b0</code>, decrypt it with AES-256-CBC using a 32-byte key hardcoded in <code>.data</code> and a 16-byte IV also in <code>.data</code>, then drop the result in <code>%TEMP%\mvp*.tmp</code> and exec it. The decrypted payload is itself a fully working PE that contains the flag <code>clctf{MVP_r1gHts_pr073tEd_w1Th_c3rT1F1c4735}</code>. The whole thing is solvable with <code>strings</code> + a few lines of Python, no emulator needed.
+        </p>
+      </div>
+
+      <div class="not-prose grid grid-cols-2 md:grid-cols-4 gap-3 my-6">
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">128&nbsp;KB</div>
+          <div class="text-xs text-slate-400 mt-1">Outer PE size</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">86&nbsp;KB</div>
+          <div class="text-xs text-slate-400 mt-1">Authenticode overlay</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">AES-256-CBC</div>
+          <div class="text-xs text-slate-400 mt-1">Cipher</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">3&nbsp;min</div>
+          <div class="text-xs text-slate-400 mt-1">Solve time</div>
+        </div>
+      </div>
+
+      <h2>The clue in the description</h2>
+      <p>The challenge text says: <em>"nos preocupa mucho que alguien robe nuestra idea, así que la hemos censurado"</em> — <em>we're worried that someone will steal our idea, so we censored it</em>. The word <em>censored</em> is doing a lot of work. In Spanish CTF tradition, that almost always means: the obvious-looking file is a wrapper, and the real artifact is hidden inside it. Combine that with "MVP" and the author name (Daysa) and you immediately suspect: a launcher that decrypts and runs an inner payload.</p>
+      <p>So the first thing to do is <strong>not</strong> run the binary. Just look at what it imports.</p>
+
+      <h2>What <code>strings</code> + imports already tell us</h2>
+      <p>A quick <code>strings -n 6 mvp.exe</code> dumps the obvious:</p>
+      <pre><code>!This program cannot be run in DOS mode.
+mvpmvpmvpmvpmvpm
+caliphal_labs!!!!!!!!!!!!!!!!!!!@
+No certificates!
+get_mvp
+mvp
+AES
+ChainingMode
+ChainingModeCBC
+ObjectLength
+BCryptDecrypt
+BCryptGenerateSymmetricKey
+BCryptGetProperty
+BCryptOpenAlgorithmProvider
+BCryptSetProperty
+ImageEnumerateCertificates
+ImageGetCertificateData
+CreateFileA
+DeleteFileA
+GetTempFileNameA
+GetTempPathA
+WriteFile</code></pre>
+      <p>That tells the whole story already:</p>
+      <ul>
+        <li><strong>Cryptography:</strong> AES, ChainingModeCBC. Likely AES-256-CBC because the next bytes look 32-ish.</li>
+        <li><strong>Key material in plain sight:</strong> <code>caliphal_labs!!!!!!!!!!!!!!!!!!!@</code> and <code>mvpmvpmvpmvpmvpm</code>. The first looks like a 32-byte ASCII key (with a trailing junk byte); the second is exactly 16 bytes — the IV.</li>
+        <li><strong>Cert reading:</strong> <code>ImageEnumerateCertificates</code> + <code>ImageGetCertificateData</code> from <code>imagehlp.dll</code>. The program reads its <em>own</em> Authenticode certificate at runtime.</li>
+        <li><strong>Drop & run:</strong> <code>GetTempPathA</code>, <code>GetTempFileNameA</code>, <code>CreateFileA</code>, <code>WriteFile</code>. The decrypted blob is written to a temp file and presumably executed.</li>
+      </ul>
+      <p>The <code>"No certificates!"</code> string is the fallback message if <code>ImageEnumerateCertificates</code> returns zero. If you stripped the cert from the PE, you'd just see that message and the loader would refuse to run — a small anti-tamper hint.</p>
+
+      <h2>The PE layout</h2>
+      <p>The PE is built with MinGW-w64 GCC 12 (per the debug strings). Layout:</p>
+      <table>
+        <thead><tr><th>Section</th><th>VA</th><th>Raw offset</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>.text</code></td><td>0x1000</td><td>0x400</td><td>Code, the loader</td></tr>
+          <tr><td><code>.data</code></td><td>0x9000</td><td>0x7600</td><td>IV (<code>mvpmvp...</code>) at 0x7620, key (<code>caliphal_labs!!!!...</code>) at 0x7640</td></tr>
+          <tr><td><code>.rdata</code></td><td>0xa000</td><td>0x7800</td><td>Wide-string property names (<code>"AES"</code>, <code>"ChainingModeCBC"</code>, <code>"ObjectLength"</code>)</td></tr>
+          <tr><td><code>.idata</code></td><td>0xe000</td><td>0x9400</td><td>IAT entries for <code>bcrypt.dll</code> and <code>imagehlp.dll</code></td></tr>
+          <tr><td>Security overlay</td><td>0xa600</td><td>0xa600</td><td><code>WIN_CERTIFICATE</code> with embedded PKCS#7 SignedData. <strong>86&nbsp;304 bytes total.</strong></td></tr>
+        </tbody>
+      </table>
+      <p>The Security Directory in the optional header points at <code>RVA 0xa600, size 0x15120</code> (= 86&nbsp;304), which is exactly the offset of the Authenticode overlay. That confirms: there is no separate <em>.text-cert</em> section; the cert lives in the file overlay as usual, and the loader is going to read it.</p>
+
+      <h2>The loader function (decompiled view)</h2>
+      <p>The interesting function lives at <code>0x140007cf0</code>. Stripped of all the prologue noise, here is what it does — annotated by hand from the disassembly:</p>
+      <pre><code>// 1) Open this PE's own file (rcx = NULL, edx = 0x80000000 = GENERIC_READ,
+//    r8  = 1 = FILE_SHARE_READ, dwCreationDisposition = 3 = OPEN_EXISTING).
+HANDLE self = CreateFileA(NULL, 0x80000000, 1, NULL, 3, 0, NULL);
+
+// 2) How many certs are attached?  If zero -> print "No certificates!\n" and quit.
+DWORD nCerts = 0;
+ImageEnumerateCertificates(self, 0, &nCerts, NULL);
+if (nCerts == 0) goto no_certs;
+
+// 3) First pass: ask for the size of cert #0, then malloc that many bytes.
+DWORD dwLength = 0;
+ImageGetCertificateData(self, 0, NULL, &dwLength);
+uint8_t* cert_blob = malloc(dwLength);
+
+// 4) Second pass: actually read the cert blob.  rsi = cert_blob, rsi[0] = dwLength.
+ImageGetCertificateData(self, 0, (WIN_CERTIFICATE*)cert_blob, &dwLength);
+
+// 5) The ciphertext lives at offset 0x5b0 inside that blob, length = dwLength - 0x5b0.
+uint8_t* ciphertext = cert_blob + 0x5b0;
+size_t   ct_len     = dwLength - 0x5b0;
+
+// 6) Open AES-256 algorithm and switch to CBC mode.
+BCRYPT_ALG_HANDLE hAlg;
+BCryptOpenAlgorithmProvider(&hAlg, L"AES", NULL, 0);
+BCryptSetProperty   (hAlg,  L"ChainingMode", L"ChainingModeCBC\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 0x20, 0);
+
+// 7) Ask BCrypt how big the key object must be, then malloc that.
+DWORD objLen = 0;
+BCryptGetProperty (hAlg, L"ObjectLength", (PUCHAR)&objLen, 4, &outLen, 0);
+uint8_t* key_object = malloc(objLen);
+
+// 8) Import the key from the hardcoded 32 bytes in .data.
+BCRYPT_KEY_HANDLE hKey;
+BCryptGenerateSymmetricKey(hAlg, &hKey, key_object, objLen,
+                           (PUCHAR)"caliphal_labs!!!!!!!!!!!!!!!!!!!",
+                           32);
+
+// 9) First BCryptDecrypt: cbOutput = 0, just to learn the plaintext length.
+DWORD ptLen = 0;
+BCryptDecrypt(hKey, ciphertext, ct_len, NULL,
+              (PUCHAR)"mvpmvpmvpmvpmvpm", 16,  // IV
+              NULL, 0, &ptLen, BCRYPT_BLOCK_PADDING);
+
+// 10) Malloc the output and decrypt for real.
+uint8_t* plaintext = malloc(ptLen);
+BCryptDecrypt(hKey, ciphertext, ct_len, NULL,
+              (PUCHAR)"mvpmvpmvpmvpmvpm", 16,
+              plaintext, ptLen, &ptLen, BCRYPT_BLOCK_PADDING);
+
+// 11) Drop to %TEMP%\mvp*.tmp and exec.
+char tmpPath[MAX_PATH];
+GetTempPathA(MAX_PATH, tmpPath);
+char tmpFile[MAX_PATH];
+GetTempFileNameA(tmpPath, "mvp", 0, tmpFile);
+HANDLE out = CreateFileA(tmpFile, 0x40000000, 0, NULL, 2, 0x80, NULL);
+DWORD written;
+WriteFile(out, plaintext, ptLen, &written, NULL);
+CloseHandle(out);
+// (then WinExec / ShellExecuteA — see below)</code></pre>
+      <p>A few details worth calling out:</p>
+      <ul>
+        <li>The <code>"ChainingModeCBC"</code> string is 16 bytes long (15 chars + null), but <code>BCryptSetProperty</code> is called with <code>cbInput = 0x20</code> (= 32). The next 16 bytes after the null are simply zero padding already present in <code>.rdata</code>. BCrypt is happy with that.</li>
+        <li>Both <code>ImageEnumerateCertificates</code> and <code>ImageGetCertificateData</code> go through the standard <code>imagehlp.dll</code> API. If the binary had been resigned, the loader would just trust whatever is there — no signature verification, no issuer pinning. Strip the cert and the loader refuses to run (anti-tamper, not anti-analysis).</li>
+        <li>The IV is literally the byte sequence <code>mvpmvpmvpmvpmvpm</code>. That is the worst kind of "key material": a single string repeated to 16 bytes. It is also why the IV is stored separately from the key — both come from hardcoded strings in <code>.data</code>.</li>
+      </ul>
+
+      <h2>Decrypting without running anything</h2>
+      <p>Once you know the algorithm, the key, the IV, and the ciphertext offset, you don't need an emulator. A 30-line Python script does it:</p>
+      <pre><code>from Crypto.Cipher import AES
+
+mvp = open("mvp.exe", "rb").read()
+
+# Key and IV, straight from .data
+key = mvp[0x7640:0x7640 + 32]            # b"caliphal_labs!!!!!!!!!!!!!!!!!!!"
+iv  = mvp[0x7620:0x7620 + 16]            # b"mvpmvpmvpmvpmvpm"
+
+# Ciphertext starts at the Security Directory overlay + 0x5b0
+ct = mvp[0xa600 + 0x5b0 : 0xa600 + 0x5b0 + (86304 - 0x5b0)]
+
+pt = AES.new(key, AES.MODE_CBC, iv).decrypt(ct)
+
+# PKCS#7 unpad
+pad = pt[-1]
+pt  = pt[:-pad]
+print(pt[:2])     # b'MZ'   <- yes, another PE
+open("mvp_decrypted.exe", "wb").write(pt)</code></pre>
+      <p>The first two bytes come back as <code>MZ</code>. The decrypted blob is itself a fully working PE.</p>
+
+      <h2>The inner PE and the flag</h2>
+      <p>Dropping <code>mvp_decrypted.exe</code> into the same toolkit shows:</p>
+      <ul>
+        <li>Another MinGW-built x86-64 PE, ~83&nbsp;KB.</li>
+        <li>20 sections, including a lot of numbered ones (<code>/4</code>, <code>/19</code>, <code>/31</code>, ...) — those are the byproducts of MinGW's static linking with debug info, harmless.</li>
+        <li>The flag, plain ASCII in the binary's data, plus a friendly "Censurado." string and the lab copyright notice.</li>
+      </ul>
+      <pre><code>$ strings mvp_decrypted.exe | grep -i clctf
+clctf{MVP_r1gHts_pr073tEd_w1Th_c3rT1F1c4735}</code></pre>
+
+      <div class="not-prose callout mt-6 p-5 rounded-xl border-2 border-emerald-400/40 bg-emerald-400/5">
+        <div class="text-xs uppercase tracking-widest text-emerald-300 font-semibold mb-2">Flag</div>
+        <code class="text-emerald-200 text-lg font-mono">clctf{MVP_r1gHts_pr073tEd_w1Th_c3rT1F1c4735}</code>
+      </div>
+
+      <h2>What this challenge is really teaching</h2>
+      <p>There are two lessons, one obvious and one less so.</p>
+      <p>The obvious one: <strong>"censoring" an idea by encrypting it with a static key and shipping both halves in the same artifact is no protection at all.</strong> Once the loader is on your machine, the loader is your threat model. Anyone with the loader has the key and the IV. The wrapper adds zero security beyond making the binary look opaque in casual inspection.</p>
+      <p>The less obvious one is about a PE feature most reverse engineers forget even exists: <strong>the Authenticode overlay is just arbitrary data appended after the last section</strong>. <code>imagehlp!ImageGetCertificateData</code> hands it back to you as a blob, indexed by cert number. That makes the cert region a convenient place to hide a payload — the loader reads it as if it were metadata, but Windows itself does not run or verify it before execution (signature verification, when it happens, runs in a separate trust step that doesn't gate <code>ImageGetCertificateData</code>). This is a real pattern in malware: the security overlay is a free, ignored-by-the-OS-by-default hiding spot.</p>
+
+      <h2>How to actually protect an "MVP idea"</h2>
+      <ul>
+        <li><strong>Don't ship the secret.</strong> If the idea is in the binary, the idea is in the binary. No amount of crypto on the wrapper changes that.</li>
+        <li><strong>If you must ship the binary, ship server-side.</strong> The user-facing app talks to a backend that owns the proprietary logic. The reverse engineering problem is reduced to API security, which is its own discipline but at least doesn't require breaking crypto to reach the algorithm.</li>
+        <li><strong>If you must ship both halves, use a derived key tied to the customer's identity.</strong> Even then you are betting on the loader not being reverse engineered. For real protection you pair this with code integrity (driver-level signing, attestation) and tamper response (kill switch on the server side). At that point you have left "MVP" territory and are building a DRM system, which is its own long, expensive war.</li>
+        <li><strong>As an analyst, assume any PE you see has a Security overlay worth looking at.</strong> It is one of the easiest places to stash data and almost nobody inspects it on a routine basis.</li>
+      </ul>
+
+      <h2>Takeaway</h2>
+      <p>This is a clean, fair "easy" challenge. The static analysis is the whole solve: imports tell you what the loader does, <code>.data</code> gives you the key and IV, the PE's Security Directory points you to the ciphertext, and a 5-line AES call produces the inner PE with the flag inside. No emulator, no dynamic analysis, no obfuscation. The challenge author wanted you to learn the Authenticode-overlay-as-covert-channel pattern — and the AES-256-CBC API surface in MinGW (which is just a thin wrapper over the standard <code>bcrypt.dll</code>). If you have done any Windows reverse engineering at all, this is the kind of thing that should fall in 5 to 10 minutes once <code>strings</code> prints <code>caliphal_labs</code>.</p>
+      <p>And next time a startup says "we censored our idea so nobody can steal it" — now you know exactly what they did. 🛡️</p>
+
+      <hr class="my-8 border-slate-700">
+
+      <div class="not-prose text-xs text-slate-400 flex flex-wrap gap-3">
+        <span class="badge-low">Reverse engineering</span>
+        <span class="badge-low">Easy</span>
+        <span>RootedCON 2026</span>
+        <span>·</span>
+        <span>Securiters</span>
+        <span>·</span>
+        <span>Caliphal Labs</span>
+        <span>·</span>
+        <span>100 pts</span>
+      </div>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="section">
+      <p>© 2026 Santiago López · Chain-Cortex · Web3 & Web 2.5 Security</p>
+      <p class="text-xs text-slate-500 mt-1">Writeup published for educational purposes under the CTF author's policy.</p>
+    </div>
+  </footer>
+
+  <script src="../app.js"></script>
+</body>
+</html>
