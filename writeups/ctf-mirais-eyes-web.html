@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Mirai's Eyes — RSA partial disclosure + JWT forgery — Chain-Cortex CTF Writeup</title>
+  <meta name="description" content="CTF writeup. A Flask web app authenticates with a custom RSA-signed JWT. The private key ships in source with 620 base64 chars redacted, but the visible suffix contains dp, dq, qInv — enough to factor n via Bleichenbacher. Forge an admin JWT, pull the hidden camera, extract the flag from the frames." />
+  <meta name="author" content="Santiago López (Chain-Cortex)" />
+  <meta name="keywords" content="CTF, web, RSA, Bleichenbacher, JWT forgery, PKCS1v15, SHA-256, RootedCON 2026, Securiters, Caliphal Labs, Mirai" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Mirai's Eyes — RSA partial disclosure + JWT forgery — CTF Writeup">
+  <meta property="og:description" content="A Flask app with a censored RSA private key. The visible CRT parameters leak dp, which collapses RSA-2048 in seconds. Forge admin, pull the flag camera.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://santilpz28.github.io/chainguard-pages/writeups/ctf-mirais-eyes-web.html">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="../style.css?v=2026-09-19">
+  <style>
+    .prose h1, .prose h2, .prose h3 { color: #67e8f9; font-weight: 700; }
+    .prose h1 { font-size: 2.25rem; margin-top: 1.5rem; margin-bottom: 1rem; }
+    .prose h2 { font-size: 1.75rem; margin-top: 2rem; margin-bottom: 0.75rem; }
+    .prose h3 { font-size: 1.25rem; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    .prose p, .prose li { color: #cbd5e1; line-height: 1.7; margin-bottom: 0.75rem; }
+    .prose ul { list-style: disc; padding-left: 1.5rem; }
+    .prose ol { list-style: decimal; padding-left: 1.5rem; }
+    .prose code { background: rgba(34, 211, 238, 0.1); color: #67e8f9; padding: 0.1rem 0.4rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', monospace; font-size: 0.9em; }
+    .prose strong { color: #f1f5f9; font-weight: 600; }
+    .prose a { color: #67e8f9; text-decoration: underline; }
+    .prose a:hover { color: #a5f3fc; }
+    .prose table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    .prose th, .prose td { padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(148, 163, 184, 0.2); text-align: left; }
+    .prose th { color: #67e8f9; font-weight: 600; }
+    .badge-crit { background: rgba(239, 68, 68, 0.2); color: #fca5a5; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+    .badge-med { background: rgba(234, 179, 8, 0.2); color: #fde047; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+    .badge-low { background: rgba(34, 197, 94, 0.2); color: #86efac; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+    .badge-ok { background: rgba(34, 197, 94, 0.2); color: #86efac; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="section header-inner">
+      <a href="../index.html" class="flex items-center gap-3 group">
+        <div class="h-8 w-8 rounded-xl grid place-items-center text-black font-extrabold bg-cyan-300 group-hover:bg-cyan-200 transition">CG</div>
+        <span class="font-semibold tracking-tight">ChainGuard · Santi</span>
+      </a>
+      <nav class="site-nav hidden md:flex" aria-label="Main">
+        <a href="../index.html#writeups">Writeups</a>
+        <a href="../index.html#perfil">Profile</a>
+        <a href="../index.html#metodos">Methods</a>
+        <a href="../index.html#stack">Stack</a>
+        <a href="../index.html#servicios">Services</a>
+        <a href="../index.html#portafolio">Portfolio</a>
+        <a href="../index.html#contacto">Contact</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <a href="../index.html" class="btn btn-outline">← Back</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="prose section section-pad max-w-4xl">
+      <div class="text-xs text-slate-400 uppercase tracking-wide">CTF Writeup · Web · RootedCON 2026</div>
+      <h1>Mirai's Eyes — RSA partial disclosure + JWT forgery</h1>
+      <p class="text-lg text-slate-300">A Flask web app authenticates users with a custom RSA-signed JWT. The private key ships in the source, but 620 base64 characters of it are censored. Inside the visible suffix, three CRT parameters survive — and that's enough to factor a 2048-bit modulus in seconds, recover the private exponent, and forge an admin token that unlocks a hidden camera whose frames contain the flag.</p>
+
+      <div class="not-prose callout mt-6 p-5 rounded-xl border-2 border-cyan-400/40 bg-cyan-400/5">
+        <div class="text-xs uppercase tracking-widest text-cyan-300 font-semibold mb-2">Bottom line</div>
+        <p class="text-slate-200 text-base leading-relaxed">
+          The challenge gives you a Flask app with <code>private.pem</code> censored in the middle. The visible suffix contains <code>q</code> (partial), <code>dp</code>, <code>dq</code>, <code>qInv</code>. The Bleichenbacher attack on <code>dp</code> reduces the problem to brute-forcing <code>k ∈ [1, 10⁵]</code> in the equation <code>e · dp − 1 = k · (p − 1)</code>. Once <code>p</code> is found, <code>q = n/p</code>, <code>d = e⁻¹ mod φ(n)</code>, and you can sign your own JWT with <code>role: admin, groups: [Oficina, Restaurante]</code>. The dashboard then exposes the hidden <code>flag-*.mp4</code> camera. Every frame of that video contains the flag rendered as giant white text on a black background. Total solve time: ~3 hours from cold start.
+        </p>
+      </div>
+
+      <div class="not-prose grid grid-cols-2 md:grid-cols-4 gap-3 my-6">
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">620</div>
+          <div class="text-xs text-slate-400 mt-1">Redacted b64 chars</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">3</div>
+          <div class="text-xs text-slate-400 mt-1">CRT params leaked</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">~1&nbsp;s</div>
+          <div class="text-xs text-slate-400 mt-1">Bleichenbacher time</div>
+        </div>
+        <div class="card p-4 text-center">
+          <div class="text-3xl font-bold text-cyan-400">6</div>
+          <div class="text-xs text-slate-400 mt-1">Cameras (1 hidden)</div>
+        </div>
+      </div>
+
+      <h2>1. What you get</h2>
+      <p>The challenge archive is the full Flask source. Layout:</p>
+      <pre class="text-xs"><code>Mirais_Eyes/
+├── app/
+│   ├── app.py
+│   ├── utils.py                ← JWT logic, "MIRAI_ALG" custom
+│   ├── data/
+│   │   ├── public.pem
+│   │   └── private.pem         ← 620 chars b64 censored
+│   ├── static/cameras/
+│   │   ├── 1.mp4 … 5.mp4       ← recycled 2011-2013 CCTV footage
+│   │   └── REDACTED.mp4        ← 0-byte placeholder
+│   └── templates/{login,register,dashboard,index}.html
+└── Dockerfile</code></pre>
+      <p>The five normal cameras ship in the archive; the flag camera (<code>flag-*.mp4</code>) only exists on the live server. The source is gunicorn + Flask, the JWT is custom-named <code>MIRAI_ALG</code> but the actual signature is bog-standard <code>PKCS#1 v1.5 + SHA-256</code>.</p>
+
+      <h2>2. Recon</h2>
+      <p>Fuzzing 800+ paths returned only four interesting endpoints: <code>/</code>, <code>/login</code>, <code>/register</code>, <code>/dashboard</code>, and <code>/static/*</code>. SQLi on <code>/register</code> was a dead end (parameterised). Path traversal on <code>/static</code> was blocked (Flask + gunicorn). No <code>robots.txt</code>, no debug pages, no <code>.well-known</code> anything.</p>
+      <p>The dashboard accepts a cookie called <code>token</code> which contains the JWT. If the signature is invalid, you get a 302 to <code>/login</code>. If the signature is valid but the user lacks permission for any camera group, you get a 200 with an empty camera list. The trick is that the sixth camera — <code>id=flag</code> — is filtered client-side: it's only added to the JSON list when the JWT payload contains <code>role: admin</code>.</p>
+
+      <p>One small Easter egg: the landing page is mostly fancy-font Mirai-themed marketing text, but the title block contains a reversed string that decodes to <code>trabajo</code> (Spanish for "work"). Don't skim past decorative text in CTFs.</p>
+
+      <h2>3. The censored key</h2>
+      <p><code>private.pem</code> is a PKCS#8 <code>RSAPrivateKey</code> with 620 base64 characters redacted with <code>REDACTEDREDACTED…</code> in the middle. Structure:</p>
+      <pre class="text-xs"><code>-----BEGIN PRIVATE KEY-----
+MII…
+&lt;302 chars b64 — header + first INTs&gt;REDACTED…REDACTED
+&lt;302 chars b64 — trailing INTs&gt;
+-----END PRIVATE KEY-----</code></pre>
+      <p>The standard DER field order of an RSAPrivateKey is:</p>
+      <pre class="text-xs"><code>SEQUENCE
+  INTEGER  version
+  INTEGER  modulus         (n)
+  INTEGER  publicExponent  (e)
+  INTEGER  privateExponent (d)
+  INTEGER  prime1          (p)
+  INTEGER  prime2          (q)
+  INTEGER  exponent1       (dp = d mod p−1)
+  INTEGER  exponent2       (dq = d mod q−1)
+  INTEGER  coefficient     (qInv = q⁻¹ mod p)</code></pre>
+      <p>620 chars b64 ≈ 465 bytes of DER. That's wide enough to swallow <code>d</code> plus most of <code>p</code>. But the trailing INTEGERs — <code>q</code> (partially), <code>dp</code>, <code>dq</code>, <code>qInv</code> — are intact in the visible suffix. And <strong>that's enough to break the key</strong>.</p>
+
+      <h2>4. Bleichenbacher attack on <code>dp</code></h2>
+      <p>The math is brutal:</p>
+      <pre class="text-xs"><code>e · dp ≡ 1   (mod p − 1)
+⟹  e · dp − 1 = k · (p − 1)   for some integer k &gt; 0</code></pre>
+      <p>Since <code>0 &lt; dp &lt; p − 1</code>, we have <code>0 &lt; k &lt; e</code>. For <code>e = 65537</code> that's ~65k candidates. For each <code>k</code>, compute the candidate <code>p</code> and test <code>n mod p == 0</code>:</p>
+      <pre class="text-xs"><code>for k in range(1, 100_001):
+    num = e * dp - 1
+    if num % k != 0: continue
+    p_cand = num // k + 1
+    if p_cand &lt; 2 or p_cand &gt;= n: continue
+    if n % p_cand == 0:
+        q = n // p_cand
+        return p_cand, q</code></pre>
+      <p>The naive bound assumes <code>k &lt; e</code>, but in this key the working <code>k</code> turned out to be <code>50084</code> — slightly above <code>65537/2</code> because the author engineered a key where <code>e · dp − 1</code> overshoots by more than one multiple of <code>p − 1</code>. Brute force up to <code>10⁵</code> still completes in &lt;1 second on a laptop. The solver prints <code>p</code> and <code>q</code> in 256-decimal form for archival.</p>
+
+      <p>Once <code>p</code> and <code>q</code> are known:</p>
+      <pre class="text-xs"><code>phi = (p - 1) * (q - 1)
+d = pow(e, -1, phi)</code></pre>
+
+      <h2>5. Forging the admin JWT</h2>
+      <p><code>utils.py</code> builds JWTs as <code>header_b64 + "." + payload_b64 + "." + sig_b64</code> with URL-safe base64 (no padding) and signs with <code>PKCS#1 v1.5 + SHA-256</code>. The custom header field <code>"alg": "MIRAI_ALG"</code> is just a string rename — there's nothing exotic. With <code>d</code> in hand, signing your own token is trivial:</p>
+      <pre class="text-xs"><code>from Crypto.Signature import pkcs1_15
+from Crypto.Hash import SHA256
+import base64, json
+
+key = RSA.construct((n, e, d, p, q))
+header_b64  = base64.urlsafe_b64encode(
+    b'{"alg":"MIRAI_ALG"}').rstrip(b"=")
+payload_b64 = base64.urlsafe_b64encode(
+    json.dumps({"groups":["Oficina","Restaurante"],
+                "role":"admin","user":"admin"},
+               separators=(",",":")).encode()
+).rstrip(b"=")
+
+signing_input = header_b64 + b"." + payload_b64
+sig = pkcs1_15.new(key).sign(SHA256.new(signing_input))
+sig_b64 = base64.urlsafe_b64encode(sig).rstrip(b"=")
+token = (signing_input + b"." + sig_b64).decode()</code></pre>
+      <p>Send it as the <code>token</code> cookie:</p>
+      <pre class="text-xs"><code>curl http://&lt;host&gt;:31856/dashboard -H "Cookie: token=&lt;forged_jwt&gt;"</code></pre>
+      <p>The dashboard now lists six cameras, including the hidden <code>flag-2d2edcb99ecc4b6c496e85bc42d4dc2f.mp4</code>.</p>
+
+      <h2>6. Pulling the flag</h2>
+      <p>Direct download — the <code>/static</code> endpoint is not auth-gated, only filtered client-side from the dashboard JSON, so anyone with the camera URL can curl it:</p>
+      <pre class="text-xs"><code>curl -o flag.mp4 \
+  http://&lt;host&gt;:31856/static/cameras/flag-2d2edcb99ecc4b6c496e85bc42d4dc2f.mp4 \
+  -H "Cookie: token=&lt;forged_jwt&gt;"</code></pre>
+      <p>The file is ~340 KB, ~15 seconds, 25 fps, 1620×1080. Open any frame: the flag is overlay text in white on black, ~120 px tall, perfectly centred. The text is baked into every frame — there's no flicker, no per-frame change. Reading one frame is enough; reading 375 just confirms consistency.</p>
+
+      <div class="not-prose callout mt-6 p-5 rounded-xl border-2 border-cyan-400/40 bg-cyan-400/5">
+        <div class="text-xs uppercase tracking-widest text-cyan-300 font-semibold mb-2">The flag</div>
+        <p class="text-2xl font-mono text-cyan-200 font-bold">clctf&#123;M1r4i's_b0tN3T_PwN3D&#125;</p>
+        <p class="text-slate-300 text-sm mt-2">→ "Mirai's botnet pwned" — a nod to the famous Mirai IoT malware that hijacked 600k cameras and DVRs to build a DDoS botnet. The CTF theme lands.</p>
+      </div>
+
+      <h2>7. What this challenge teaches</h2>
+      <ul>
+        <li><strong>Partial private key disclosure is fatal.</strong> Even when <code>d</code> is destroyed, the CRT parameters (<code>dp</code>, <code>dq</code>, <code>qInv</code>) by themselves collapse RSA-2048 in seconds. Defence: never publish <em>anything</em> from a private key, including the CRT fields.</li>
+        <li><strong>Custom JWT algorithm names are not security.</strong> "MIRAI_ALG" looked exotic but was bog-standard PKCS#1 v1.5 + SHA-256 with a header field rename. Always verify the algorithm against actual signer behaviour, not the JWT spec.</li>
+        <li><strong>Permission checks belong on the server, not the URL.</strong> <code>/static/cameras/flag-*.mp4</code> was not auth-gated — only filtered client-side from the dashboard JSON. Once you have the URL, anyone can curl it. Classic IDOR.</li>
+        <li><strong>Marketing copy can hide breadcrumbs.</strong> The reversed <code>trabajo</code> on the landing page is the author's signature: "look harder at the work, not the marketing." Don't skim past decorative text in CTFs.</li>
+        <li><strong>Recycled footage is a fun red herring.</strong> The five normal cameras are all 2011–2013 Spanish CCTV footage tagged <code>MANC260987</code> — unrelated noise. Easy to waste hours on them if you don't read the source carefully first.</li>
+      </ul>
+
+      <h2>8. Verification</h2>
+      <table>
+        <tr><th>Property</th><th>Value</th></tr>
+        <tr><td>File size</td><td>343,387 bytes</td></tr>
+        <tr><td>MD5</td><td><code>1c5b0d99fe32e199e67ac9f897623614</code></td></tr>
+        <tr><td>SHA-256</td><td><code>7339082ab3cc6a61628be89fdf7b0900ddd0d26fa939200fb1d7c59562a25363</code></td></tr>
+        <tr><td>Duration</td><td>~15 s</td></tr>
+        <tr><td>FPS</td><td>25</td></tr>
+        <tr><td>Resolution</td><td>1620 × 1080</td></tr>
+        <tr><td>Frames extracted</td><td>375</td></tr>
+        <tr><td>Flag consistency across frames</td><td>375 / 375</td></tr>
+      </table>
+
+      <h2>9. Pattern reference</h2>
+      <p>This is <strong>pattern #9</strong> in our methodology: <em>RSA Partial Key Disclosure + Bleichenbacher Attack on <code>dp</code></em>. See <a href="../index.html#metodos">Chain-Cortex methodology</a>. The full private solver, factor values, and JWT-forging script live in the private CTF archive — this writeup shows the method and the result.</p>
+
+      <hr class="my-8 border-slate-700" />
+      <p class="text-xs text-slate-500">Solver time: ~3 hours (cold start). Difficulty: Medium. Author: Daysa (Caliphal Labs). CTF: RootedCON 2026, Securiters track. Solved 2026-09-19 by Santi López (Chain-Cortex).</p>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <div class="section">
+      <p>© 2026 Santiago López · Chain-Cortex · <a href="../index.html">chainguard-pages</a></p>
+    </div>
+  </footer>
+</body>
+</html>

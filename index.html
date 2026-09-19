@@ -190,6 +190,40 @@
       </div>
 
       <div class="writeup-grid">
+        <a href="writeups/ctf-mirais-eyes-web.html" class="writeup-card">
+          <div class="writeup-cover" style="background:linear-gradient(135deg,#0e1d1a,#0f3026)">
+            <div class="writeup-cover-icon" style="color:#67e8f9;text-shadow:0 0 30px rgba(103,232,249,0.4);">
+              <small>CTF · 2026-09-19</small>
+              WEB
+            </div>
+          </div>
+          <div class="writeup-body">
+            <div class="writeup-meta">
+              <span class="chip" style="background:rgba(103,232,249,0.15);color:#67e8f9;">Web</span>
+              <span class="dot">·</span>
+              <span>RootedCON 2026</span>
+              <span class="dot">·</span>
+              <span>Caliphal Labs</span>
+            </div>
+            <h3 class="writeup-title">Mirai's Eyes — RSA partial disclosure + JWT forgery — CTF writeup</h3>
+            <p class="writeup-desc">A Flask app authenticates with a custom RSA-signed JWT. The private key ships censored but the visible CRT parameters leak dp — enough to factor RSA-2048 in seconds, forge an admin token, and pull a hidden camera whose frames contain the flag.</p>
+            <div class="writeup-tags">
+              <span class="chip">Bleichenbacher</span>
+              <span class="chip">RSA dp leak</span>
+              <span class="chip">JWT forgery</span>
+              <span class="chip">PKCS1v15</span>
+              <span class="chip">SHA-256</span>
+            </div>
+            <div class="writeup-footer">
+              <div class="writeup-score">
+                <span class="label">Class</span>
+                <span>Web</span>
+              </div>
+              <div class="writeup-cta">Read writeup <span>→</span></div>
+            </div>
+          </div>
+        </a>
+
         <a href="writeups/ctf-mvp-cert-aes.html" class="writeup-card">
           <div class="writeup-cover" style="background:linear-gradient(135deg,#1a1d0e,#26300f)">
             <div class="writeup-cover-icon" style="color:#a3e635;text-shadow:0 0 30px rgba(163,230,53,0.4);">
