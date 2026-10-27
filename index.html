@@ -372,7 +372,7 @@
               <span>UAF</span>
             </div>
             <h3 class="writeup-title">PHP2Shell — anatomy of a PHP core RCE</h3>
-            <p class="writeup-desc">Research on CVE-2026-109618 / CVE-2026-109619 (CVSS 9.2). Instrumented PHP 8.2.34 to prove the use-after-free: the consuming request operates on the exact <code>zend_array</code> the previous one freed. Measured the real slot size (56 B, bin 6) and why the 288-byte spray in public PoCs cannot reach it.</p>
+            <p class="writeup-desc">Research on CVE-2026-109618 / CVE-2026-109619 (CVSS 9.2). Instrumented PHP 8.2.34 to prove the use-after-free: the consuming request operates on the exact <code>zend_array</code> the previous one freed. Measured the real slot size (56 B, bin 6), why the 288-byte spray in public PoCs cannot reach it, and — with a raw memory dump — that <code>pDestructor</code> does not survive as <code>zval_ptr_dtor</code> but as self-referential garbage, refuting an earlier conclusion of my own.</p>
             <div class="writeup-tags">
               <span class="chip">PHP</span>
               <span class="chip">UAF</span>
